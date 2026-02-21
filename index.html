@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAS-Agenda | Cloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .completed { text-decoration: line-through; opacity: 0.5; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans text-slate-900">
+
+    <div id="login-screen" class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 text-center">
+            <div class="bg-blue-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg rotate-3">
+                <i class="fas fa-layer-group text-white text-3xl"></i>
+            </div>
+            <h2 class="text-4xl font-black text-slate-800 mb-2 tracking-tighter">DAS-Agenda</h2>
+            <p class="text-slate-400 mb-8 font-medium">Sincronización en la nube</p>
+            <div class="space-y-4">
+                <input type="email" id="email" placeholder="Correo electrónico" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                <input type="password" id="password" placeholder="Contraseña (mín. 6 caracteres)" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                <button onclick="handleAuth('login')" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 shadow-lg active:scale-95 transition-all">Entrar</button>
+                <button onclick="handleAuth('register')" class="w-full text-blue-500 text-sm font-bold hover:text-blue-700">Crear cuenta nueva</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="agenda-screen" class="hidden">
+        <nav class="bg-white border-b p-4 sticky top-0 z-20 shadow-sm flex justify-between items-center px-6">
+            <div class="flex items-center gap-3">
+                <span class="bg-blue-600 text-white p-2 rounded-xl shadow-md"><i class="fas fa-check-circle"></i></span>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tighter">DAS-Agenda</h1>
+            </div>
+            <button onclick="logout()" class="w-10 h-10 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"><i class="fas fa-power-off"></i></button>
+        </nav>
+
+        <div class="container mx-auto p-4 max-w-5xl">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-6 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Tarea</label>
+                        <input type="text" id="task-detail" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Vencimiento</label>
+                        <input type="date" id="task-deadline" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Urgencia</label>
+                        <select id="task-priority" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-600">
+                            <option value="Baja">Baja</option>
+                            <option value="Media" selected>Media</option>
+                            <option value="Alta">Alta 🔥</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="saveTask()" class="mt-6 w-full md:w-auto bg-blue-600 text-white px-10 py-3 rounded-2xl font-black hover:bg-blue-700 shadow-md active:scale-95 transition-all">GUARDAR EN LA NUBE</button>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="relative flex-grow">
+                    <i class="fas fa-search absolute left-4 top-4 text-slate-300"></i>
+                    <input type="text" id="search-input" oninput="renderTasks()" placeholder="Buscar en DAS-Agenda..." class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-slate-200 outline-none shadow-sm focus:border-blue-500">
+                </div>
+                <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex items-center gap-2 shadow-sm">
+                    <select id="sort-filter" onchange="renderTasks()" class="font-bold text-slate-600 outline-none bg-transparent text-sm">
+                        <option value="created">Recientes</option>
+                        <option value="deadline">Vencimiento</option>
+                        <option value="priority">Urgencia</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-left">
+                    <tbody id="task-list" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAffYd8QzcABt6bktN4xSw-XtK1jwJgYQI",
+            authDomain: "das-agenda.firebaseapp.com",
+            projectId: "das-agenda",
+            storageBucket: "das-agenda.firebasestorage.app",
+            messagingSenderId: "995103851313",
+            appId: "1:995103851313:web:39a19797ab209439fde610"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let tasks = [];
+        let currentUserId = null;
+
+        window.handleAuth = async (type) => {
+            const email = document.getElementById('email').value.trim();
+            const pass = document.getElementById('password').value;
+            if(!email || !pass) return alert("Completa los datos");
+            try {
+                if(type === 'register') {
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                    alert("¡Cuenta DAS-Agenda creada!");
+                } else await signInWithEmailAndPassword(auth, email, pass);
+            } catch (e) { alert("Error: " + e.message); }
+        };
+
+        window.logout = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('agenda-screen').classList.remove('hidden');
+                const q = query(collection(db, "tasks"), where("userId", "==", currentUserId));
+                onSnapshot(q, (snapshot) => {
+                    tasks = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+                    renderTasks();
+                });
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('agenda-screen').classList.add('hidden');
+            }
+        });
+
+        window.saveTask = async () => {
+            const detail = document.getElementById('task-detail').value.trim();
+            const deadline = document.getElementById('task-deadline').value || '9999-12-31';
+            const priority = document.getElementById('task-priority').value;
+            if(!detail) return alert("Escribe una tarea");
+            await addDoc(collection(db, "tasks"), {
+                detail, deadline, priority, userId: currentUserId, completed: false, created: Date.now()
+            });
+            document.getElementById('task-detail').value = '';
+        };
+
+        window.toggleTask = async (id, status) => {
+            await updateDoc(doc(db, "tasks", id), { completed: !status });
+        };
+
+        window.deleteTask = async (id) => {
+            if(confirm("¿Eliminar tarea?")) await deleteDoc(doc(db, "tasks", id));
+        };
+
+        window.renderTasks = () => {
+            const list = document.getElementById('task-list');
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const sort = document.getElementById('sort-filter').value;
+            let filtered = tasks.filter(t => t.detail.toLowerCase().includes(search));
+
+            if (sort === 'deadline') filtered.sort((a,b) => a.deadline.localeCompare(b.deadline));
+            else if (sort === 'priority') {
+                const levels = { 'Alta': 1, 'Media': 2, 'Baja': 3 };
+                filtered.sort((a,b) => levels[a.priority] - levels[b.priority]);
+            } else filtered.sort((a,b) => b.created - a.created);
+
+            list.innerHTML = filtered.map(t => `
+                <tr class="hover:bg-slate-50 transition-all">
+                    <td class="p-5 w-12 text-center">
+                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}', ${t.completed})" class="w-6 h-6 accent-blue-600 cursor-pointer">
+                    </td>
+                    <td class="p-5">
+                        <div class="font-bold text-slate-700 ${t.completed ? 'completed text-slate-300 font-normal' : ''}">${t.detail}</div>
+                        <span class="inline-block mt-1 px-2 py-0.5 text-[9px] font-black rounded border ${t.priority === 'Alta' ? 'bg-red-50 text-red-500 border-red-100' : t.priority === 'Media' ? 'bg-amber-50 text-amber-500 border-amber-100' : 'bg-blue-50 text-blue-500 border-blue-100'} uppercase">${t.priority}</span>
+                    </td>
+                    <td class="p-5 text-sm text-slate-400 font-medium">${t.deadline === '9999-12-31' ? 'Pendiente' : t.deadline}</td>
+                    <td class="p-5 text-right"><button onclick="deleteTask('${t.id}')" class="text-slate-300 hover:text-red-400"><i class="fas fa-trash-alt"></i></button></td>
+                </tr>`).join('');
+        };
+    </script>
+</body>
+</html>
