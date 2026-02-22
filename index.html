@@ -10,13 +10,15 @@
         .tab-active { background-color: #2563eb !important; color: white !important; }
         .hidden { display: none; }
         .hour-input:focus { background-color: #fef9c3; outline: none; border-color: #2563eb; }
+        /* Estilo para que el nombre seleccionado sea legible */
+        .pill-selected { background-color: #2563eb !important; color: #ffffff !important; border-color: #1e40af !important; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans text-gray-800">
 
     <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center border">
-            <h2 class="text-3xl font-black text-blue-600 mb-6 italic italic">DAS-PRO</h2>
+            <h2 class="text-3xl font-black text-blue-600 mb-6 italic">DAS-PRO</h2>
             <input type="email" id="email" placeholder="Email" class="w-full p-4 mb-4 bg-gray-50 rounded-2xl border outline-none">
             <input type="password" id="password" placeholder="Clave" class="w-full p-4 mb-6 bg-gray-50 rounded-2xl border outline-none">
             <button onclick="handleAuth()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg">ENTRAR</button>
@@ -40,7 +42,7 @@
                     <h3 class="font-bold text-blue-600 uppercase text-[10px] tracking-widest">Datos del Cierre</h3>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Generado</label>
+                            <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha de Propina</label>
                             <input type="date" id="date-generated" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
                         </div>
                         <div>
@@ -48,9 +50,19 @@
                             <input type="date" id="date-paid" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
                         </div>
                     </div>
-                    <div>
-                        <label class="text-[9px] font-bold text-gray-400 uppercase">¿Quién Pagó?</label>
-                        <input type="text" id="payer-name" placeholder="Ej: Responsable de turno" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[9px] font-bold text-gray-400 uppercase">Turno</label>
+                            <select id="shift" class="w-full p-2 bg-gray-50 border rounded-xl text-sm font-bold">
+                                <option value="Mañana">MAÑANA</option>
+                                <option value="Noche">NOCHE</option>
+                                <option value="Evento">EVENTO</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-gray-400 uppercase">¿Quién Pagó?</label>
+                            <input type="text" id="payer-name" placeholder="Responsable" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
+                        </div>
                     </div>
                     <div>
                         <label class="text-[9px] font-bold text-gray-400 uppercase">Monto Total $</label>
@@ -59,11 +71,11 @@
                 </div>
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border">
-                    <h3 class="font-bold text-gray-400 uppercase text-[10px] tracking-widest mb-4 text-center">Personal Registrado</h3>
+                    <h3 class="font-bold text-gray-400 uppercase text-[10px] tracking-widest mb-4 text-center">Seleccionar Personal</h3>
                     <div id="staff-selector" class="flex flex-wrap gap-2 mb-4 justify-center"></div>
                     <div class="flex gap-2 border-t pt-4">
-                        <input type="text" id="new-staff-name" placeholder="Nuevo nombre..." class="flex-grow p-2 border rounded-lg text-xs">
-                        <button onclick="addNewStaff()" class="bg-blue-600 text-white px-4 rounded-lg text-sm font-bold">+</button>
+                        <input type="text" id="new-staff-name" placeholder="Nuevo empleado..." class="flex-grow p-2 border rounded-lg text-xs">
+                        <button onclick="addNewStaff()" class="bg-blue-600 text-white px-4 rounded-lg text-sm font-bold uppercase">+</button>
                     </div>
                 </div>
             </div>
@@ -77,19 +89,19 @@
                 </table>
                 <div class="p-4 bg-gray-50 text-right flex justify-between items-center border-t">
                     <div class="text-left"><span class="text-[9px] font-bold text-gray-400 block uppercase">Valor por Hora</span><span id="vhour" class="text-xl font-black text-blue-600">$0.00</span></div>
-                    <button onclick="saveCierre()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-green-700 transition">GUARDAR CIERRE</button>
+                    <button onclick="saveCierre()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-green-700">GUARDAR CIERRE</button>
                 </div>
             </div>
         </main>
 
         <main id="section-history" class="hidden p-4 max-w-4xl mx-auto">
-            <h3 class="font-bold text-gray-500 uppercase text-[10px] tracking-widest mb-4 uppercase">Historial de Propinas</h3>
+            <h3 class="font-bold text-gray-500 uppercase text-[10px] tracking-widest mb-4">Cierres Guardados</h3>
             <div id="history-list" class="space-y-3"></div>
         </main>
 
         <main id="section-tasks" class="p-4 max-w-xl mx-auto">
             <div class="bg-white p-4 rounded-2xl shadow-sm mb-4 border flex gap-2">
-                <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="flex-grow p-3 bg-gray-50 rounded-xl outline-none">
+                <input type="text" id="task-input" placeholder="Nueva tarea..." class="flex-grow p-3 bg-gray-50 rounded-xl outline-none">
                 <button onclick="saveTask()" class="bg-blue-600 text-white px-5 rounded-xl font-bold">+</button>
             </div>
             <ul id="task-list" class="bg-white rounded-2xl shadow-sm divide-y border"></ul>
@@ -133,18 +145,18 @@
                 document.getElementById('agenda-screen').classList.remove('hidden');
                 document.getElementById('date-generated').valueAsDate = new Date();
                 
+                onSnapshot(query(collection(db, "staff_list"), where("userId", "==", currentUserId)), (snap) => {
+                    fullStaffList = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    fullStaffList.sort((a, b) => a.name.localeCompare(b.name));
+                    renderStaffSelector();
+                });
+
                 onSnapshot(query(collection(db, "tasks"), where("userId", "==", currentUserId)), (snap) => {
                     document.getElementById('task-list').innerHTML = snap.docs.map(d => `
                         <li class="p-4 flex justify-between items-center font-bold">
                             <span>${d.data().detail}</span>
                             <button onclick="deleteTask('${d.id}')" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
                         </li>`).join('');
-                });
-
-                onSnapshot(query(collection(db, "staff_list"), where("userId", "==", currentUserId)), (snap) => {
-                    fullStaffList = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                    fullStaffList.sort((a, b) => a.name.localeCompare(b.name));
-                    renderStaffSelector();
                 });
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -160,13 +172,13 @@
 
         window.deleteStaffMember = async (e, id) => {
             e.stopPropagation();
-            if(confirm("¿Eliminar empleado definitivamente?")) await deleteDoc(doc(db, "staff_list", id));
+            if(confirm("¿Eliminar empleado de la lista?")) await deleteDoc(doc(db, "staff_list", id));
         };
 
         function renderStaffSelector() {
             const container = document.getElementById('staff-selector');
             container.innerHTML = fullStaffList.map(s => `
-                <div class="flex items-center bg-white border rounded-full pl-3 pr-1 py-1 gap-2 shadow-sm transition-all ${selectedStaffIds.includes(s.id) ? 'bg-blue-600 border-blue-600 text-white' : 'text-gray-500'}">
+                <div class="flex items-center border rounded-full pl-3 pr-1 py-1 gap-2 shadow-sm transition-all ${selectedStaffIds.includes(s.id) ? 'pill-selected' : 'bg-white text-gray-500'}">
                     <span class="text-xs font-bold cursor-pointer select-none" onclick="toggleStaff('${s.id}')">${s.name}</span>
                     <button onclick="deleteStaffMember(event, '${s.id}')" class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-red-500 hover:text-white text-[10px]">×</button>
                 </div>
@@ -181,20 +193,17 @@
                 selectedStaffIds.push(id);
             }
             renderStaffSelector();
-        };
+        }
 
         function renderDistributionTable() {
             const tableBody = document.getElementById('distribution-table');
             const activeStaff = fullStaffList.filter(s => selectedStaffIds.includes(s.id));
-            
             tableBody.innerHTML = activeStaff.map(s => `
                 <tr>
                     <td class="p-4 font-bold text-gray-700">${s.name}</td>
                     <td class="p-4 text-center">
-                        <input type="number" step="0.5" 
-                        value="${hoursMemory[s.id] || 0}" 
-                        oninput="updateHours('${s.id}', this.value)" 
-                        onfocus="this.select()"
+                        <input type="number" step="0.5" value="${hoursMemory[s.id] || 0}" 
+                        oninput="updateHours('${s.id}', this.value)" onfocus="this.select()"
                         class="hour-input w-20 p-2 border-2 border-blue-100 rounded-xl text-center font-black" data-id="${s.id}" data-name="${s.name}">
                     </td>
                     <td class="p-4 text-right font-black text-blue-600 text-lg" id="res-${s.id}">$0.00</td>
@@ -202,26 +211,19 @@
             calculate();
         }
 
-        window.updateHours = (id, val) => {
-            hoursMemory[id] = val;
-            calculate();
-        };
+        window.updateHours = (id, val) => { hoursMemory[id] = val; calculate(); };
 
         window.calculate = () => {
-            const totalMonto = parseFloat(document.getElementById('tip-total').value) || 0;
+            const total = parseFloat(document.getElementById('tip-total').value) || 0;
             const inputs = document.querySelectorAll('.hour-input');
-            let totalHoras = 0;
-            
-            inputs.forEach(i => { totalHoras += parseFloat(i.value) || 0; });
-            const vh = totalHoras > 0 ? totalMonto / totalHoras : 0;
+            let totalH = 0;
+            inputs.forEach(i => totalH += parseFloat(i.value) || 0);
+            const vh = totalH > 0 ? total / totalH : 0;
             document.getElementById('vhour').innerText = `$${vh.toFixed(2)}`;
-
             inputs.forEach(i => {
                 const id = i.getAttribute('data-id');
-                const horas = parseFloat(i.value) || 0;
-                const monto = (horas * vh).toFixed(2);
-                const el = document.getElementById(`res-${id}`);
-                if(el) el.innerText = `$${monto}`;
+                const monto = (parseFloat(i.value || 0) * vh).toFixed(2);
+                if(document.getElementById(`res-${id}`)) document.getElementById(`res-${id}`).innerText = `$${monto}`;
             });
         };
 
@@ -229,68 +231,50 @@
             const total = document.getElementById('tip-total').value;
             const dateGen = document.getElementById('date-generated').value;
             const payer = document.getElementById('payer-name').value;
-            if(!total || !dateGen || !payer) return alert("Completa: Monto, Fecha y Responsable.");
+            const shift = document.getElementById('shift').value;
+            if(!total || !dateGen || !payer) return alert("Completa Monto, Fecha y Responsable.");
 
             const repartos = [];
             document.querySelectorAll('.hour-input').forEach(i => {
-                repartos.push({
-                    nombre: i.getAttribute('data-name'),
-                    horas: i.value,
-                    cobro: document.getElementById(`res-${i.getAttribute('data-id')}`).innerText
-                });
+                repartos.push({ nombre: i.getAttribute('data-name'), horas: i.value, cobro: document.getElementById(`res-${i.getAttribute('data-id')}`).innerText });
             });
 
             await addDoc(collection(db, "cierres"), {
-                userId: currentUserId,
-                fechaGenerado: dateGen,
-                fechaPagado: document.getElementById('date-paid').value,
-                pagador: payer,
-                montoTotal: total,
-                detalles: repartos,
-                timestamp: Date.now()
+                userId: currentUserId, fechaGenerado: dateGen, fechaPagado: document.getElementById('date-paid').value,
+                pagador: payer, turno: shift, montoTotal: total, detalles: repartos, timestamp: Date.now()
             });
-
-            alert("Cierre guardado.");
-            location.reload();
+            alert("Cierre guardado!"); location.reload();
         };
 
         async function loadHistory() {
             const hList = document.getElementById('history-list');
-            hList.innerHTML = "<p class='text-center text-gray-400 p-10'>Cargando historial...</p>";
+            hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Cargando...</p>";
             try {
-                // Si esto falla es porque falta el INDICE en Firebase
                 const snap = await getDocs(query(collection(db, "cierres"), where("userId", "==", currentUserId), orderBy("timestamp", "desc")));
-                if(snap.empty) {
-                    hList.innerHTML = "<p class='text-center text-gray-400 p-10 uppercase text-xs'>No hay cierres guardados.</p>";
-                    return;
-                }
+                if(snap.empty) { hList.innerHTML = "<p class='text-center p-10 text-gray-400 uppercase text-xs'>Sin datos.</p>"; return; }
                 hList.innerHTML = snap.docs.map(d => {
                     const c = d.data();
                     return `
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-l-4 border-l-blue-500">
                         <div class="flex justify-between items-start mb-3">
-                            <div><span class="text-[9px] font-bold text-gray-400 block uppercase">Generado</span><span class="font-bold text-sm">${c.fechaGenerado}</span></div>
-                            <div class="text-right"><span class="text-[9px] font-bold text-gray-400 block uppercase">Responsable</span><span class="font-bold text-sm text-blue-600">${c.pagador}</span></div>
+                            <div><span class="text-[9px] font-bold text-gray-400 block uppercase">FECHA DE PROPINA</span><span class="font-bold text-sm">${c.fechaGenerado}</span></div>
+                            <div class="text-right"><span class="text-[9px] font-bold text-gray-400 block uppercase">TURNO: ${c.turno || 'N/A'}</span><span class="font-bold text-sm text-blue-600">${c.pagador}</span></div>
                         </div>
                         <div class="bg-blue-50 p-3 rounded-xl mb-3 flex justify-between items-center">
-                            <span class="text-xs font-bold text-blue-800 uppercase">Total:</span>
-                            <span class="text-xl font-black text-blue-700">$${c.montoTotal}</span>
+                            <span class="text-xs font-bold text-blue-800 uppercase">Total:</span><span class="text-xl font-black text-blue-700">$${c.montoTotal}</span>
                         </div>
                         <div class="grid grid-cols-1 gap-1 text-[11px] text-gray-600 border-t pt-2">
                             ${c.detalles.map(p => `<div class="flex justify-between"><span>${p.nombre} (${p.horas}hs)</span><span class="font-bold">${p.cobro}</span></div>`).join('')}
                         </div>
                     </div>`;
                 }).join('');
-            } catch (e) {
-                hList.innerHTML = `<div class='text-center p-6'><p class='text-red-500 text-sm'>Error de servidor.</p><p class='text-[10px] text-gray-400 mt-2'>Asegúrate de haber creado el índice en la consola de Firebase.</p></div>`;
-                console.error(e);
-            }
+            } catch (e) { hList.innerHTML = "<p class='text-center text-red-500 text-xs'>Error de servidor. Revisa los índices de Firebase.</p>"; }
         }
 
         window.handleAuth = async () => {
             const e = document.getElementById('email').value.trim();
             const p = document.getElementById('password').value.trim();
-            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("Error: " + err.message); }
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); }
         };
         window.logout = () => signOut(auth);
         window.saveTask = async () => {
@@ -298,7 +282,7 @@
             if(val) await addDoc(collection(db, "tasks"), { detail: val, userId: currentUserId });
             document.getElementById('task-input').value = '';
         };
-        window.deleteTask = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "tasks", id)); };
+        window.deleteTask = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "tasks", id)); };
     </script>
 </body>
 </html>
