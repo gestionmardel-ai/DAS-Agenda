@@ -1,183 +1,165 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAS-Agenda | Cloud</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .completed { text-decoration: line-through; opacity: 0.5; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAS-Agenda PRO</title>
+<script src=""></script>
+<link rel="stylesheet" href="">
+<style>
+.completed { text-decoration: line-through; opacity: 0.5; }
+.tab-active { color: #3b82f6 !important; border-bottom: 3px solid #3b82f6 !important; opacity: 1 !important; }
+</style>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans text-slate-900">
-
-    <div id="login-screen" class="flex items-center justify-center min-h-screen px-4">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-gray-100 text-center">
-            <div class="bg-blue-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg rotate-3">
-                <i class="fas fa-layer-group text-white text-3xl"></i>
-            </div>
-            <h2 class="text-4xl font-black text-slate-800 mb-2 tracking-tighter">DAS-Agenda</h2>
-            <p class="text-slate-400 mb-8 font-medium">Sincronización en la nube</p>
-            <div class="space-y-4">
-                <input type="email" id="email" placeholder="Correo electrónico" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                <input type="password" id="password" placeholder="Contraseña (mín. 6 caracteres)" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                <button onclick="handleAuth('login')" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 shadow-lg active:scale-95 transition-all">Entrar</button>
-                <button onclick="handleAuth('register')" class="w-full text-blue-500 text-sm font-bold hover:text-blue-700">Crear cuenta nueva</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="agenda-screen" class="hidden">
-        <nav class="bg-white border-b p-4 sticky top-0 z-20 shadow-sm flex justify-between items-center px-6">
-            <div class="flex items-center gap-3">
-                <span class="bg-blue-600 text-white p-2 rounded-xl shadow-md"><i class="fas fa-check-circle"></i></span>
-                <h1 class="text-2xl font-black text-slate-800 tracking-tighter">DAS-Agenda</h1>
-            </div>
-            <button onclick="logout()" class="w-10 h-10 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"><i class="fas fa-power-off"></i></button>
-        </nav>
-
-        <div class="container mx-auto p-4 max-w-5xl">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-6 mt-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="md:col-span-2">
-                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Tarea</label>
-                        <input type="text" id="task-detail" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Vencimiento</label>
-                        <input type="date" id="task-deadline" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold uppercase text-slate-400 ml-1">Urgencia</label>
-                        <select id="task-priority" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-600">
-                            <option value="Baja">Baja</option>
-                            <option value="Media" selected>Media</option>
-                            <option value="Alta">Alta 🔥</option>
-                        </select>
-                    </div>
-                </div>
-                <button onclick="saveTask()" class="mt-6 w-full md:w-auto bg-blue-600 text-white px-10 py-3 rounded-2xl font-black hover:bg-blue-700 shadow-md active:scale-95 transition-all">GUARDAR EN LA NUBE</button>
-            </div>
-
-            <div class="flex flex-col md:flex-row gap-4 mb-6">
-                <div class="relative flex-grow">
-                    <i class="fas fa-search absolute left-4 top-4 text-slate-300"></i>
-                    <input type="text" id="search-input" oninput="renderTasks()" placeholder="Buscar en DAS-Agenda..." class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-slate-200 outline-none shadow-sm focus:border-blue-500">
-                </div>
-                <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex items-center gap-2 shadow-sm">
-                    <select id="sort-filter" onchange="renderTasks()" class="font-bold text-slate-600 outline-none bg-transparent text-sm">
-                        <option value="created">Recientes</option>
-                        <option value="deadline">Vencimiento</option>
-                        <option value="priority">Urgencia</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                <table class="w-full text-left">
-                    <tbody id="task-list" class="divide-y divide-slate-100"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAffYd8QzcABt6bktN4xSw-XtK1jwJgYQI",
-            authDomain: "das-agenda.firebaseapp.com",
-            projectId: "das-agenda",
-            storageBucket: "das-agenda.firebasestorage.app",
-            messagingSenderId: "995103851313",
-            appId: "1:995103851313:web:39a19797ab209439fde610"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        let tasks = [];
-        let currentUserId = null;
-
-        window.handleAuth = async (type) => {
-            const email = document.getElementById('email').value.trim();
-            const pass = document.getElementById('password').value;
-            if(!email || !pass) return alert("Completa los datos");
-            try {
-                if(type === 'register') {
-                    await createUserWithEmailAndPassword(auth, email, pass);
-                    alert("¡Cuenta DAS-Agenda creada!");
-                } else await signInWithEmailAndPassword(auth, email, pass);
-            } catch (e) { alert("Error: " + e.message); }
-        };
-
-        window.logout = () => signOut(auth);
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUserId = user.uid;
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('agenda-screen').classList.remove('hidden');
-                const q = query(collection(db, "tasks"), where("userId", "==", currentUserId));
-                onSnapshot(q, (snapshot) => {
-                    tasks = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
-                    renderTasks();
-                });
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('agenda-screen').classList.add('hidden');
-            }
-        });
-
-        window.saveTask = async () => {
-            const detail = document.getElementById('task-detail').value.trim();
-            const deadline = document.getElementById('task-deadline').value || '9999-12-31';
-            const priority = document.getElementById('task-priority').value;
-            if(!detail) return alert("Escribe una tarea");
-            await addDoc(collection(db, "tasks"), {
-                detail, deadline, priority, userId: currentUserId, completed: false, created: Date.now()
-            });
-            document.getElementById('task-detail').value = '';
-        };
-
-        window.toggleTask = async (id, status) => {
-            await updateDoc(doc(db, "tasks", id), { completed: !status });
-        };
-
-        window.deleteTask = async (id) => {
-            if(confirm("¿Eliminar tarea?")) await deleteDoc(doc(db, "tasks", id));
-        };
-
-        window.renderTasks = () => {
-            const list = document.getElementById('task-list');
-            const search = document.getElementById('search-input').value.toLowerCase();
-            const sort = document.getElementById('sort-filter').value;
-            let filtered = tasks.filter(t => t.detail.toLowerCase().includes(search));
-
-            if (sort === 'deadline') filtered.sort((a,b) => a.deadline.localeCompare(b.deadline));
-            else if (sort === 'priority') {
-                const levels = { 'Alta': 1, 'Media': 2, 'Baja': 3 };
-                filtered.sort((a,b) => levels[a.priority] - levels[b.priority]);
-            } else filtered.sort((a,b) => b.created - a.created);
-
-            list.innerHTML = filtered.map(t => `
-                <tr class="hover:bg-slate-50 transition-all">
-                    <td class="p-5 w-12 text-center">
-                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}', ${t.completed})" class="w-6 h-6 accent-blue-600 cursor-pointer">
-                    </td>
-                    <td class="p-5">
-                        <div class="font-bold text-slate-700 ${t.completed ? 'completed text-slate-300 font-normal' : ''}">${t.detail}</div>
-                        <span class="inline-block mt-1 px-2 py-0.5 text-[9px] font-black rounded border ${t.priority === 'Alta' ? 'bg-red-50 text-red-500 border-red-100' : t.priority === 'Media' ? 'bg-amber-50 text-amber-500 border-amber-100' : 'bg-blue-50 text-blue-500 border-blue-100'} uppercase">${t.priority}</span>
-                    </td>
-                    <td class="p-5 text-sm text-slate-400 font-medium">${t.deadline === '9999-12-31' ? 'Pendiente' : t.deadline}</td>
-                    <td class="p-5 text-right"><button onclick="deleteTask('${t.id}')" class="text-slate-300 hover:text-red-400"><i class="fas fa-trash-alt"></i></button></td>
-                </tr>`).join('');
-        };
-    </script>
+<div id="login-screen" class="flex items-center justify-center min-h-screen px-4">
+<div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
+<h2 class="text-3xl font-black mb-6">DAS-Agenda</h2>
+<input type="email" id="email" placeholder="Email" class="w-full p-4 bg-slate-50 border rounded-2xl mb-4">
+<input type="password" id="password" placeholder="Contraseña" class="w-full p-4 bg-slate-50 border rounded-2xl mb-4">
+<button onclick="handleAuth('login')" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg">Entrar</button>
+<button onclick="handleAuth('register')" class="w-full text-blue-500 text-sm mt-4 font-bold">Crear cuenta nueva</button>
+</div>
+</div>
+<div id="agenda-screen" class="hidden">
+<nav class="bg-white border-b sticky top-0 z-20 flex justify-between items-center px-6 py-2 shadow-sm">
+<h1 class="text-lg font-black italic text-blue-600">DAS-Agenda</h1>
+<div class="flex gap-6">
+<button id="btn-tasks" onclick="showSection('tasks')" class="text-xs font-black py-4 tab-active uppercase tracking-widest">Tareas</button>
+<button id="btn-tips" onclick="showSection('tips')" class="text-xs font-black py-4 opacity-40 uppercase tracking-widest">Propinas</button>
+</div>
+<button onclick="logout()" class="text-slate-300 hover:text-red-500 transition-all"><i class="fas fa-power-off"></i></button>
+</nav>
+<div id="section-tasks" class="container mx-auto p-4 max-w-4xl">
+<div class="bg-white p-6 rounded-3xl border border-slate-200 mb-6 mt-4 shadow-sm">
+<div class="flex gap-3">
+<input type="text" id="task-detail" placeholder="¿Qué hay que hacer?" class="flex-grow p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+<button onclick="saveTask()" class="bg-blue-600 text-white px-8 rounded-2xl font-bold shadow-md">AÑADIR</button>
+</div>
+</div>
+<div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+<table class="w-full text-left">
+<tbody id="task-list" class="divide-y divide-slate-100"></tbody>
+</table>
+</div>
+</div>
+<div id="section-tips" class="hidden container mx-auto p-4 max-w-6xl mt-4">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-1 space-y-6">
+<div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+<h3 class="font-black text-xs text-slate-400 uppercase mb-4">Datos del Pago</h3>
+<div class="space-y-4">
+<div><label class="text-[10px] font-bold">FECHA PAGO</label><input type="date" id="tip-date-pay" class="w-full p-2 bg-slate-50 border rounded-xl"></div>
+<div><label class="text-[10px] font-bold text-blue-600 uppercase">Monto Total ()&lt;/label&gt;
+&lt;input type=&quot;number&quot; id=&quot;tip-total&quot; oninput=&quot;calculateTips()&quot; placeholder=&quot;0.00&quot; class=&quot;w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-2xl text-3xl font-black text-blue-700 outline-none&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;bg-white p-6 rounded-3xl border border-slate-200 shadow-sm&quot;&gt;
+&lt;h3 class=&quot;font-black text-xs text-slate-400 uppercase mb-4&quot;&gt;Base de Staff&lt;/h3&gt;
+&lt;div class=&quot;flex gap-2 mb-4&quot;&gt;
+&lt;input type=&quot;text&quot; id=&quot;new-staff-name&quot; placeholder=&quot;Nombre...&quot; class=&quot;flex-grow p-2 border rounded-xl text-sm&quot;&gt;
+&lt;button onclick=&quot;addStaff()&quot; class=&quot;bg-slate-800 text-white px-4 rounded-xl shadow-md&quot;&gt;&lt;i class=&quot;fas fa-plus&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+&lt;/div&gt;
+&lt;ul id=&quot;staff-list-db&quot; class=&quot;space-y-2 max-h-48 overflow-y-auto&quot;&gt;&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;lg:col-span-2&quot;&gt;
+&lt;div class=&quot;bg-white p-8 rounded-3xl border border-slate-200 shadow-sm min-h-[500px]&quot;&gt;
+&lt;div class=&quot;flex justify-between items-center mb-6 border-b pb-4&quot;&gt;
+&lt;h2 class=&quot;font-black text-2xl tracking-tighter italic&quot;&gt;Liquidación x Horas&lt;/h2&gt;
+&lt;div class=&quot;text-right&quot;&gt;
+&lt;span class=&quot;block text-[10px] font-bold text-slate-400 uppercase&quot;&gt;Valor Hora&lt;/span&gt;
+&lt;span id=&quot;vhour-display&quot; class=&quot;text-2xl font-black text-blue-600&quot;&gt; 0.00</span>
+</div>
+</div>
+<table class="w-full text-left">
+<thead>
+<tr class="text-[10px] font-bold text-slate-300 uppercase border-b">
+<th class="pb-3">Nombre</th>
+<th class="pb-3 text-center">Horas</th>
+<th class="pb-3 text-right">A Cobrar</th>
+</tr>
+</thead>
+<tbody id="distribution-table" class="divide-y divide-slate-50"></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script type="module">
+import { initializeApp } from "";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "";
+import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, updateDoc, deleteDoc } from "";
+const firebaseConfig = {
+apiKey: "AIzaSyAffYd8QzcABt6bktN4xSw-XtK1jwJgYQI",
+authDomain: "das-agenda.firebaseapp.com",
+projectId: "das-agenda",
+storageBucket: "das-agenda.firebasestorage.app",
+messagingSenderId: "995103851313",
+appId: "1:995103851313:web:39a19797ab209439fde610"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+let staff = []; let currentUserId = null;
+window.showSection = (s) => {
+document.getElementById('section-tasks').classList.toggle('hidden', s !== 'tasks');
+document.getElementById('section-tips').classList.toggle('hidden', s !== 'tips');
+document.getElementById('btn-tasks').classList.toggle('tab-active', s === 'tasks');
+document.getElementById('btn-tips').classList.toggle('tab-active', s === 'tips');
+};
+window.handleAuth = async (t) => {
+const e = document.getElementById('email').value.trim();
+const p = document.getElementById('password').value;
+if(!e || !p) return alert("Completar datos");
+try { t === 'register' ? await createUserWithEmailAndPassword(auth, e, p) : await signInWithEmailAndPassword(auth, e, p); }
+catch (err) { alert("Error: " + err.message); }
+};
+window.logout = () => signOut(auth);
+onAuthStateChanged(auth, (user) => {
+if (user) {
+currentUserId = user.uid;
+document.getElementById('login-screen').classList.add('hidden');
+document.getElementById('agenda-screen').classList.remove('hidden');
+onSnapshot(query(collection(db, "tasks"), where("userId", "==", currentUserId)), (snap) => {
+document.getElementById('task-list').innerHTML = snap.docs.map(d => &lt;tr class=&quot;hover:bg-slate-50&quot;&gt;&lt;td class=&quot;p-4 font-bold text-slate-700&quot;&gt;${d.data().detail}&lt;/td&gt;&lt;td class=&quot;text-right p-4&quot;&gt;&lt;button onclick=&quot;deleteTask(&#39;${d.id}&#39;)&quot; class=&quot;text-slate-200 hover:text-red-500&quot;&gt;&lt;i class=&quot;fas fa-trash&quot;&gt;&lt;/i&gt;&lt;/button&gt;&lt;/td&gt;&lt;/tr&gt;).join('');
+});
+onSnapshot(query(collection(db, "staff"), where("userId", "==", currentUserId)), (snap) => {
+staff = snap.docs.map(d => ({id: d.id, ...d.data()}));
+document.getElementById('staff-list-db').innerHTML = staff.map(s => &lt;li class=&quot;flex justify-between items-center p-2 bg-slate-50 rounded-lg text-xs border border-slate-100&quot;&gt;&lt;span&gt;${s.name}&lt;/span&gt;&lt;button onclick=&quot;deleteStaff(&#39;${s.id}&#39;)&quot; class=&quot;text-red-300&quot;&gt;×&lt;/button&gt;&lt;/li&gt;).join('');
+document.getElementById('distribution-table').innerHTML = staff.map(s => &lt;tr&gt;&lt;td class=&quot;py-4 font-bold text-slate-600&quot;&gt;${s.name}&lt;/td&gt;&lt;td class=&quot;py-4 text-center&quot;&gt;&lt;input type=&quot;number&quot; step=&quot;0.5&quot; value=&quot;0&quot; oninput=&quot;calculateTips()&quot; class=&quot;hour-input w-20 p-2 border rounded-xl text-center font-black&quot; data-id=&quot;${s.id}&quot;&gt;&lt;/td&gt;&lt;td class=&quot;py-4 text-right font-black text-blue-600 text-lg&quot; id=&quot;amount-${s.id}&quot;&gt;$ 0.00&lt;/td&gt;&lt;/tr&gt;).join('');
+});
+} else {
+document.getElementById('login-screen').classList.remove('hidden');
+document.getElementById('agenda-screen').classList.add('hidden');
+}
+});
+window.saveTask = async () => {
+const d = document.getElementById('task-detail').value.trim();
+if(d) await addDoc(collection(db, "tasks"), { detail: d, userId: currentUserId, created: Date.now() });
+document.getElementById('task-detail').value = '';
+};
+window.deleteTask = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "tasks", id)); };
+window.addStaff = async () => {
+const n = document.getElementById('new-staff-name').value.trim();
+if(n) await addDoc(collection(db, "staff"), { name: n, userId: currentUserId });
+document.getElementById('new-staff-name').value = '';
+};
+window.deleteStaff = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "staff", id)); };
+window.calculateTips = () => {
+const total = parseFloat(document.getElementById('tip-total').value) || 0;
+const inputs = document.querySelectorAll('.hour-input');
+let hSum = 0; inputs.forEach(i => hSum += parseFloat(i.value) || 0);
+const vh = hSum > 0 ? total / hSum : 0;
+document.getElementById('vhour-display').innerText = $ ${vh.toFixed(2)};
+inputs.forEach(i => {
+const id = i.getAttribute('data-id');
+const val = ( (parseFloat(i.value) || 0) * vh ).toFixed(2);
+document.getElementById(amount-${id}).innerText = $ ${val};
+});
+};
+</script>
 </body>
 </html>
