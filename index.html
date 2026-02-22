@@ -1,130 +1,186 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>DAS-Agenda</title>
-<script src=""></script>
-<style>
-.hidden { display: none; }
-.active { background: #2563eb !important; color: white !important; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAS-Agenda PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .tab-active { background-color: #2563eb !important; color: white !important; }
+        .hidden { display: none; }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50 min-h-screen font-sans">
 
-<div id="login-screen" class="p-20 text-center">
-<h1 class="text-4xl font-bold mb-10">DAS-Agenda</h1>
-<input type="email" id="email" placeholder="Email" class="border p-4 mb-4 w-64 block mx-auto rounded">
-<input type="password" id="password" placeholder="Pass" class="border p-4 mb-4 w-64 block mx-auto rounded">
-<button onclick="handleAuth('login')" class="bg-blue-600 text-white p-4 w-64 rounded font-bold">ENTRAR</button>
-</div>
+    <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center">
+            <h2 class="text-3xl font-black text-blue-600 mb-6 italic">DAS-Agenda</h2>
+            <div class="space-y-4">
+                <input type="email" id="email" placeholder="Correo electrónico" class="w-full p-4 bg-gray-100 rounded-2xl outline-none border focus:border-blue-500">
+                <input type="password" id="password" placeholder="Contraseña" class="w-full p-4 bg-gray-100 rounded-2xl outline-none border focus:border-blue-500">
+                <button onclick="handleAuth()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition">ENTRAR</button>
+            </div>
+        </div>
+    </div>
 
-<div id="agenda-screen" class="hidden">
-<nav class="bg-white p-4 shadow flex justify-between items-center">
-<b class="text-blue-600">DAS-PRO</b>
-<div class="flex gap-2">
-<button id="bt1" onclick="showS('tasks')" class="active p-2 rounded text-xs">TAREAS</button>
-<button id="bt2" onclick="showS('tips')" class="p-2 rounded text-xs bg-gray-200">PROPINAS</button>
-</div>
-<button onclick="logout()">Salir</button>
-</nav>
+    <div id="agenda-screen" class="hidden">
+        <nav class="bg-white border-b sticky top-0 z-50 flex justify-between items-center px-4 py-3 shadow-sm">
+            <h1 class="font-black italic text-blue-600">DAS-PRO</h1>
+            <div class="flex bg-gray-100 p-1 rounded-xl">
+                <button id="btn-tasks" onclick="showSection('tasks')" class="px-4 py-2 rounded-lg text-xs font-bold tab-active">TAREAS</button>
+                <button id="btn-tips" onclick="showSection('tips')" class="px-4 py-2 rounded-lg text-xs font-bold">PROPINAS</button>
+            </div>
+            <button onclick="logout()"><i class="fas fa-power-off text-gray-400 hover:text-red-500"></i></button>
+        </nav>
 
-<div id="section-tasks" class="p-10 max-w-xl mx-auto">
-<input type="text" id="t-in" class="border p-4 w-full rounded mb-4" placeholder="Nueva tarea...">
-<button onclick="saveT()" class="bg-blue-600 text-white p-4 w-full rounded">GUARDAR</button>
-<ul id="t-list" class="mt-10 bg-white shadow rounded"></ul>
-</div>
+        <main id="section-tasks" class="p-4 max-w-xl mx-auto">
+            <div class="bg-white p-4 rounded-2xl shadow-sm mb-4 border">
+                <div class="flex gap-2">
+                    <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="flex-grow p-3 bg-gray-50 rounded-xl outline-none">
+                    <button onclick="saveTask()" class="bg-blue-600 text-white px-5 rounded-xl font-bold">+</button>
+                </div>
+            </div>
+            <ul id="task-list" class="bg-white rounded-2xl shadow-sm divide-y border overflow-hidden"></ul>
+        </main>
 
-<div id="section-tips" class="hidden p-10 max-w-4xl mx-auto">
-<div class="bg-white p-6 rounded shadow mb-6">
-<h2 class="font-bold mb-4">Calculadora de Propinas</h2>
-<input type="number" id="tip-total" oninput="calc()" class="border-2 border-blue-200 p-4 text-2xl w-full rounded" placeholder="Monto Total $">
-</div>
-<div class="grid grid-cols-2 gap-4">
-<div class="bg-white p-4 rounded shadow">
-<input type="text" id="st-name" class="border p-2 w-full rounded mb-2" placeholder="Nuevo empleado">
-<button onclick="addSt()" class="bg-black text-white p-2 w-full rounded">Agregar Staff</button>
-<ul id="st-list" class="mt-4"></ul>
-</div>
-<div class="bg-white p-4 rounded shadow text-center">
-<p class="text-xs text-gray-400">VALOR HORA</p>
-<h3 id="vh" class="text-3xl font-bold text-blue-600">$0.00</h3>
-</div>
-</div>
-<table class="w-full mt-10 bg-white rounded shadow">
-<thead><tr class="border-b"><th>Nombre</th><th>Horas</th><th>Total</th></tr></thead>
-<tbody id="dist-body"></tbody>
-</table>
-</div>
-</div>
+        <main id="section-tips" class="hidden p-4 max-w-4xl mx-auto space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                    <h3 class="font-bold text-blue-600 uppercase text-xs mb-4">Cierre de Caja</h3>
+                    <label class="text-[10px] font-bold text-gray-400">MONTO TOTAL TURNO $</label>
+                    <input type="number" id="tip-total" oninput="calculate()" class="w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-2xl text-3xl font-black text-blue-700 outline-none">
+                    
+                    <div class="mt-6 pt-4 border-t flex justify-between items-center">
+                        <span class="text-xs font-bold text-gray-500">VALOR POR HORA</span>
+                        <span id="vhour" class="text-2xl font-black text-blue-600">$0.00</span>
+                    </div>
+                </div>
 
-<script type="module">
-import { initializeApp } from "";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "";
-import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc } from "";
+                <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                    <h3 class="font-bold text-gray-400 uppercase text-xs mb-4">Personal en Turno</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="staff-name" placeholder="Nombre..." class="flex-grow p-2 border rounded-lg text-sm">
+                        <button onclick="addStaff()" class="bg-gray-800 text-white px-4 rounded-lg font-bold">+</button>
+                    </div>
+                    <ul id="staff-list-db" class="space-y-2 max-h-40 overflow-y-auto"></ul>
+                </div>
+            </div>
 
-const config = {
-apiKey: "AIzaSyAffYd8QzcABt6bktN4xSw-XtK1jwJgYQI",
-authDomain: "das-agenda.firebaseapp.com",
-projectId: "das-agenda",
-storageBucket: "das-agenda.firebasestorage.app",
-messagingSenderId: "995103851313",
-appId: "1:995103851313:web:39a19797ab209439fde610"
-};
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase">
+                        <tr>
+                            <th class="p-4">Nombre</th>
+                            <th class="p-4 text-center">Horas</th>
+                            <th class="p-4 text-right">Total a Cobrar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="distribution-table" class="divide-y"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
 
-const app = initializeApp(config);
-const auth = getAuth(app);
-const db = getFirestore(app);
-let staff = []; let uid = null;
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-window.showS = (s) => {
-document.getElementById('section-tasks').classList.toggle('hidden', s !== 'tasks');
-document.getElementById('section-tips').classList.toggle('hidden', s !== 'tips');
-document.getElementById('bt1').classList.toggle('active', s === 'tasks');
-document.getElementById('bt2').classList.toggle('active', s === 'tips');
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyAffYd8QzcABt6bktN4xSw-XtK1jwJgYQI",
+            authDomain: "das-agenda.firebaseapp.com",
+            projectId: "das-agenda",
+            storageBucket: "das-agenda.firebasestorage.app",
+            messagingSenderId: "995103851313",
+            appId: "1:995103851313:web:39a19797ab209439fde610"
+        };
 
-window.handleAuth = async (t) => {
-const e = document.getElementById('email').value;
-const p = document.getElementById('password').value;
-try { await signInWithEmailAndPassword(auth, e, p); } catch (err) { alert(err.message); }
-};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let staffData = [];
+        let currentUserId = null;
 
-window.logout = () => signOut(auth);
+        window.showSection = (section) => {
+            document.getElementById('section-tasks').classList.toggle('hidden', section !== 'tasks');
+            document.getElementById('section-tips').classList.toggle('hidden', section !== 'tips');
+            document.getElementById('btn-tasks').classList.toggle('tab-active', section === 'tasks');
+            document.getElementById('btn-tips').classList.toggle('tab-active', section === 'tips');
+        };
 
-onAuthStateChanged(auth, (user) => {
-if (user) {
-uid = user.uid;
-document.getElementById('login-screen').classList.add('hidden');
-document.getElementById('agenda-screen').classList.remove('hidden');
-onSnapshot(query(collection(db, "tasks"), where("userId", "==", uid)), (s) => {
-document.getElementById('t-list').innerHTML = s.docs.map(d => &lt;li class=&quot;p-4 border-b flex justify-between&quot;&gt;&lt;span&gt;${d.data().detail}&lt;/span&gt;&lt;button onclick=&quot;delT(&#39;${d.id}&#39;)&quot;&gt;X&lt;/button&gt;&lt;/li&gt;).join('');
-});
-onSnapshot(query(collection(db, "staff"), where("userId", "==", uid)), (s) => {
-staff = s.docs.map(d => ({id: d.id, ...d.data()}));
-document.getElementById('st-list').innerHTML = staff.map(s => &lt;li class=&quot;flex justify-between p-1&quot;&gt;&lt;span&gt;${s.name}&lt;/span&gt;&lt;button onclick=&quot;delSt(&#39;${s.id}&#39;)&quot;&gt;×&lt;/button&gt;&lt;/li&gt;).join('');
-document.getElementById('dist-body').innerHTML = staff.map(s => &lt;tr&gt;&lt;td class=&quot;p-4&quot;&gt;${s.name}&lt;/td&gt;&lt;td class=&quot;text-center&quot;&gt;&lt;input type=&quot;number&quot; oninput=&quot;calc()&quot; class=&quot;h-in border w-16 text-center&quot; data-id=&quot;${s.id}&quot;&gt;&lt;/td&gt;&lt;td class=&quot;text-right p-4 font-bold&quot; id=&quot;res-${s.id}&quot;&gt;$0.00&lt;/td&gt;&lt;/tr&gt;).join('');
-});
-}
-});
+        window.handleAuth = async () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            try { await signInWithEmailAndPassword(auth, email, pass); } catch (e) { alert("Error: " + e.message); }
+        };
 
-window.saveT = async () => { const v = document.getElementById('t-in').value; if(v) await addDoc(collection(db, "tasks"), { detail: v, userId: uid }); document.getElementById('t-in').value = ''; };
-window.delT = async (id) => await deleteDoc(doc(db, "tasks", id));
-window.addSt = async () => { const v = document.getElementById('st-name').value; if(v) await addDoc(collection(db, "staff"), { name: v, userId: uid }); document.getElementById('st-name').value = ''; };
-window.delSt = async (id) => await deleteDoc(doc(db, "staff", id));
+        window.logout = () => signOut(auth);
 
-window.calc = () => {
-const tot = parseFloat(document.getElementById('tip-total').value) || 0;
-const ins = document.querySelectorAll('.h-in');
-let hS = 0; ins.forEach(i => hS += parseFloat(i.value) || 0);
-const vh = hS > 0 ? tot / hS : 0;
-document.getElementById('vh').innerText = $${vh.toFixed(2)};
-ins.forEach(i => {
-const id = i.getAttribute('data-id');
-document.getElementById(res-${id}).innerText = $${((parseFloat(i.value) || 0) * vh).toFixed(2)};
-});
-};
-</script>
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('agenda-screen').classList.remove('hidden');
+                
+                onSnapshot(query(collection(db, "tasks"), where("userId", "==", currentUserId)), (snap) => {
+                    document.getElementById('task-list').innerHTML = snap.docs.map(d => `
+                        <li class="p-4 flex justify-between items-center hover:bg-gray-50 font-bold">
+                            <span>${d.data().detail}</span>
+                            <button onclick="deleteTask('${d.id}')" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                        </li>`).join('');
+                });
 
+                onSnapshot(query(collection(db, "staff"), where("userId", "==", currentUserId)), (snap) => {
+                    staffData = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    document.getElementById('staff-list-db').innerHTML = staffData.map(s => `
+                        <li class="flex justify-between p-2 bg-gray-50 rounded-lg text-sm border">
+                            <span>${s.name}</span>
+                            <button onclick="deleteStaff('${s.id}')" class="text-red-300">×</button>
+                        </li>`).join('');
+                    
+                    document.getElementById('distribution-table').innerHTML = staffData.map(s => `
+                        <tr>
+                            <td class="p-4 font-bold text-gray-700">${s.name}</td>
+                            <td class="p-4 text-center"><input type="number" step="0.5" value="0" oninput="calculate()" class="hour-input w-20 p-2 border rounded-xl text-center font-black" data-id="${s.id}"></td>
+                            <td class="p-4 text-right font-black text-blue-600 text-lg" id="res-${s.id}">$0.00</td>
+                        </tr>`).join('');
+                });
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('agenda-screen').classList.add('hidden');
+            }
+        });
+
+        window.saveTask = async () => {
+            const val = document.getElementById('task-input').value;
+            if(val) await addDoc(collection(db, "tasks"), { detail: val, userId: currentUserId, created: Date.now() });
+            document.getElementById('task-input').value = '';
+        };
+
+        window.deleteTask = async (id) => { if(confirm("¿Borrar tarea?")) await deleteDoc(doc(db, "tasks", id)); };
+
+        window.addStaff = async () => {
+            const name = document.getElementById('staff-name').value;
+            if(name) await addDoc(collection(db, "staff"), { name: name, userId: currentUserId });
+            document.getElementById('staff-name').value = '';
+        };
+
+        window.deleteStaff = async (id) => { if(confirm("¿Quitar del staff?")) await deleteDoc(doc(db, "staff", id)); };
+
+        window.calculate = () => {
+            const total = parseFloat(document.getElementById('tip-total').value) || 0;
+            const inputs = document.querySelectorAll('.hour-input');
+            let totalHours = 0;
+            inputs.forEach(i => totalHours += parseFloat(i.value) || 0);
+            const vh = totalHours > 0 ? total / totalHours : 0;
+            document.getElementById('vhour').innerText = `$${vh.toFixed(2)}`;
+            inputs.forEach(i => {
+                const id = i.getAttribute('data-id');
+                const monto = ((parseFloat(i.value) || 0) * vh).toFixed(2);
+                document.getElementById(`res-${id}`).innerText = `$${monto}`;
+            });
+        };
+    </script>
 </body>
 </html>
