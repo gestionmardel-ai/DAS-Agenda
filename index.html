@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAS-Agenda PRO</title>
+    <title>DAS-PRO | Gestión Integral</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -11,81 +11,94 @@
         .hidden { display: none; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans">
+<body class="bg-gray-100 min-h-screen font-sans">
 
     <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center">
-            <h2 class="text-3xl font-black text-blue-600 mb-6 italic">DAS-Agenda</h2>
-            <div class="space-y-4">
-                <input type="email" id="email" placeholder="Correo electrónico" class="w-full p-4 bg-gray-100 rounded-2xl outline-none border focus:border-blue-500">
-                <input type="password" id="password" placeholder="Contraseña" class="w-full p-4 bg-gray-100 rounded-2xl outline-none border focus:border-blue-500">
-                <button onclick="handleAuth()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition">ENTRAR</button>
-            </div>
+            <h2 class="text-3xl font-black text-blue-600 mb-6 italic">DAS-PRO</h2>
+            <input type="email" id="email" placeholder="Email" class="w-full p-4 mb-4 bg-gray-50 rounded-2xl border outline-none">
+            <input type="password" id="password" placeholder="Clave" class="w-full p-4 mb-6 bg-gray-50 rounded-2xl border outline-none">
+            <button onclick="handleAuth()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg">ENTRAR</button>
         </div>
     </div>
 
     <div id="agenda-screen" class="hidden">
         <nav class="bg-white border-b sticky top-0 z-50 flex justify-between items-center px-4 py-3 shadow-sm">
-            <h1 class="font-black italic text-blue-600 text-lg">DAS-PRO</h1>
-            <div class="flex bg-gray-100 p-1 rounded-xl">
-                <button id="btn-tasks" onclick="showSection('tasks')" class="px-4 py-2 rounded-lg text-xs font-bold tab-active">TAREAS</button>
-                <button id="btn-tips" onclick="showSection('tips')" class="px-4 py-2 rounded-lg text-xs font-bold">PROPINAS</button>
+            <h1 class="font-black italic text-blue-600">DAS-PRO</h1>
+            <div class="flex bg-gray-200 p-1 rounded-xl gap-1">
+                <button id="btn-tasks" onclick="showSection('tasks')" class="px-3 py-1 rounded-lg text-[10px] font-bold tab-active uppercase">Tareas</button>
+                <button id="btn-tips" onclick="showSection('tips')" class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Propinas</button>
+                <button id="btn-history" onclick="showSection('history')" class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Historial</button>
             </div>
-            <button onclick="logout()"><i class="fas fa-power-off text-gray-400 hover:text-red-500"></i></button>
+            <button onclick="logout()"><i class="fas fa-power-off text-gray-400"></i></button>
         </nav>
-
-        <main id="section-tasks" class="p-4 max-w-xl mx-auto">
-            <div class="bg-white p-4 rounded-2xl shadow-sm mb-4 border">
-                <div class="flex gap-2">
-                    <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="flex-grow p-3 bg-gray-50 rounded-xl outline-none">
-                    <button onclick="saveTask()" class="bg-blue-600 text-white px-5 rounded-xl font-bold">+</button>
-                </div>
-            </div>
-            <ul id="task-list" class="bg-white rounded-2xl shadow-sm divide-y border overflow-hidden"></ul>
-        </main>
 
         <main id="section-tips" class="hidden p-4 max-w-4xl mx-auto space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                    <h3 class="font-bold text-blue-600 uppercase text-xs mb-4">Cierre de Caja</h3>
-                    <label class="text-[10px] font-bold text-gray-400">MONTO TOTAL TURNO $</label>
-                    <input type="number" id="tip-total" oninput="calculate()" class="w-full p-4 bg-blue-50 border-2 border-blue-100 rounded-2xl text-3xl font-black text-blue-700 outline-none">
-                    
-                    <div class="mt-6 pt-4 border-t flex justify-between items-center">
-                        <span class="text-xs font-bold text-gray-500">VALOR POR HORA</span>
-                        <span id="vhour" class="text-2xl font-black text-blue-600">$0.00</span>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border space-y-3">
+                    <h3 class="font-bold text-blue-600 uppercase text-xs">Datos del Cierre</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[9px] font-bold text-gray-400">FECHA GENERADO</label>
+                            <input type="date" id="date-generated" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold text-gray-400">FECHA PAGADO</label>
+                            <input type="date" id="date-paid" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-gray-400">¿QUIÉN PAGÓ?</label>
+                        <input type="text" id="payer-name" placeholder="Nombre del responsable" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-gray-400">MONTO TOTAL $</label>
+                        <input type="number" id="tip-total" oninput="calculate()" class="w-full p-3 bg-blue-50 border-2 border-blue-100 rounded-xl text-2xl font-black text-blue-700">
                     </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                    <h3 class="font-bold text-gray-400 uppercase text-xs mb-4">Personal en Turno</h3>
-                    <div class="flex gap-2 mb-4">
-                        <input type="text" id="staff-name" placeholder="Nombre..." class="flex-grow p-2 border rounded-lg text-sm">
-                        <button onclick="addStaff()" class="bg-gray-800 text-white px-4 rounded-lg font-bold">+</button>
+                    <h3 class="font-bold text-gray-400 uppercase text-xs mb-4">Seleccionar Staff</h3>
+                    <div id="staff-selector" class="flex flex-wrap gap-2 mb-4">
+                        </div>
+                    <div class="flex gap-2 border-t pt-4">
+                        <input type="text" id="new-staff-name" placeholder="Agregar nuevo al listado..." class="flex-grow p-2 border rounded-lg text-xs">
+                        <button onclick="addNewStaff()" class="bg-gray-800 text-white px-4 rounded-lg text-sm font-bold">REGISTRAR</button>
                     </div>
-                    <ul id="staff-list-db" class="space-y-2 max-h-40 overflow-y-auto"></ul>
                 </div>
             </div>
 
             <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                 <table class="w-full text-left">
                     <thead class="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase">
-                        <tr>
-                            <th class="p-4">Nombre</th>
-                            <th class="p-4 text-center">Horas</th>
-                            <th class="p-4 text-right">Total a Cobrar</th>
-                        </tr>
+                        <tr><th class="p-4">Nombre</th><th class="p-4 text-center">Horas</th><th class="p-4 text-right">Total</th></tr>
                     </thead>
                     <tbody id="distribution-table" class="divide-y"></tbody>
                 </table>
+                <div class="p-4 bg-gray-50 text-right">
+                    <button onclick="saveCierre()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-green-700">GUARDAR CIERRE</button>
+                </div>
             </div>
+        </main>
+
+        <main id="section-history" class="hidden p-4 max-w-4xl mx-auto">
+            <h3 class="font-bold text-gray-500 uppercase text-xs mb-4">Cierres Guardados</h3>
+            <div id="history-list" class="space-y-3"></div>
+        </main>
+
+        <main id="section-tasks" class="p-4 max-w-xl mx-auto">
+            <div class="bg-white p-4 rounded-2xl shadow-sm mb-4 border flex gap-2">
+                <input type="text" id="task-input" placeholder="Nueva tarea..." class="flex-grow p-3 bg-gray-50 rounded-xl outline-none">
+                <button onclick="saveTask()" class="bg-blue-600 text-white px-5 rounded-xl font-bold">+</button>
+            </div>
+            <ul id="task-list" class="bg-white rounded-2xl shadow-sm divide-y border"></ul>
         </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAffYd8QzcABt6bktN4xSw-XtK1jwJgYQI",
@@ -99,95 +112,89 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        let staffData = [];
         let currentUserId = null;
+        let fullStaffList = [];
+        let selectedStaffIds = [];
 
         window.showSection = (section) => {
-            document.getElementById('section-tasks').classList.toggle('hidden', section !== 'tasks');
-            document.getElementById('section-tips').classList.toggle('hidden', section !== 'tips');
-            document.getElementById('btn-tasks').classList.toggle('tab-active', section === 'tasks');
-            document.getElementById('btn-tips').classList.toggle('tab-active', section === 'tips');
+            const sections = ['tasks', 'tips', 'history'];
+            sections.forEach(s => {
+                document.getElementById(`section-${s}`).classList.toggle('hidden', s !== section);
+                document.getElementById(`btn-${s}`).classList.toggle('tab-active', s === section);
+            });
+            if(section === 'history') loadHistory();
         };
-
-        window.handleAuth = async () => {
-            const email = document.getElementById('email').value.trim();
-            const pass = document.getElementById('password').value.trim();
-            try { 
-                await signInWithEmailAndPassword(auth, email, pass); 
-            } catch (e) { 
-                alert("Error de ingreso: " + e.message); 
-            }
-        };
-
-        window.logout = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
-            const loginScr = document.getElementById('login-screen');
-            const agendaScr = document.getElementById('agenda-screen');
-
             if (user) {
                 currentUserId = user.uid;
-                loginScr.classList.add('hidden');
-                agendaScr.classList.remove('hidden');
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('agenda-screen').classList.remove('hidden');
                 
+                // Cargar Tareas
                 onSnapshot(query(collection(db, "tasks"), where("userId", "==", currentUserId)), (snap) => {
                     document.getElementById('task-list').innerHTML = snap.docs.map(d => `
-                        <li class="p-4 flex justify-between items-center hover:bg-gray-50 font-bold">
+                        <li class="p-4 flex justify-between items-center font-bold">
                             <span>${d.data().detail}</span>
-                            <button onclick="deleteTask('${d.id}')" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                            <button onclick="deleteTask('${d.id}')" class="text-gray-300"><i class="fas fa-trash"></i></button>
                         </li>`).join('');
                 });
 
-                onSnapshot(query(collection(db, "staff"), where("userId", "==", currentUserId)), (snap) => {
-                    staffData = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                    renderStaffUI();
+                // Cargar Listado de Staff Fijo
+                onSnapshot(query(collection(db, "staff_list"), where("userId", "==", currentUserId)), (snap) => {
+                    fullStaffList = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    renderStaffSelector();
                 });
             } else {
-                loginScr.classList.remove('hidden');
-                agendaScr.classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('agenda-screen').classList.add('hidden');
             }
         });
 
-        function renderStaffUI() {
-            const listDb = document.getElementById('staff-list-db');
-            const tableBody = document.getElementById('distribution-table');
+        // GESTIÓN DE STAFF FIJO
+        window.addNewStaff = async () => {
+            const name = document.getElementById('new-staff-name').value.trim();
+            if(name) await addDoc(collection(db, "staff_list"), { name, userId: currentUserId });
+            document.getElementById('new-staff-name').value = "";
+        };
 
-            listDb.innerHTML = staffData.map(s => `
-                <li class="flex justify-between p-2 bg-gray-50 rounded-lg text-sm border mb-1">
-                    <span>${s.name}</span>
-                    <button onclick="deleteStaff('${s.id}')" class="text-red-500 font-bold px-2">×</button>
-                </li>`).join('');
-
-            tableBody.innerHTML = staffData.length === 0 
-                ? '<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">No hay personal agregado</td></tr>'
-                : staffData.map(s => `
-                    <tr class="border-b">
-                        <td class="p-4 font-bold text-gray-700">${s.name}</td>
-                        <td class="p-4 text-center">
-                            <input type="number" step="0.5" value="0" oninput="calculate()" 
-                            class="hour-input w-20 p-2 border-2 border-blue-100 rounded-xl text-center font-black" data-id="${s.id}">
-                        </td>
-                        <td class="p-4 text-right font-black text-blue-600 text-lg" id="res-${s.id}">$0.00</td>
-                    </tr>`).join('');
-            calculate();
+        function renderStaffSelector() {
+            const container = document.getElementById('staff-selector');
+            container.innerHTML = fullStaffList.map(s => `
+                <button onclick="toggleStaff('${s.id}')" 
+                    id="pill-${s.id}" 
+                    class="px-4 py-2 rounded-full border text-xs font-bold transition-all ${selectedStaffIds.includes(s.id) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500'}">
+                    ${s.name}
+                </button>
+            `).join('');
+            renderDistributionTable();
         }
 
-        window.saveTask = async () => {
-            const val = document.getElementById('task-input').value;
-            if(val) await addDoc(collection(db, "tasks"), { detail: val, userId: currentUserId, created: Date.now() });
-            document.getElementById('task-input').value = '';
+        window.toggleStaff = (id) => {
+            if(selectedStaffIds.includes(id)) {
+                selectedStaffIds = selectedStaffIds.filter(i => i !== id);
+            } else {
+                selectedStaffIds.push(id);
+            }
+            renderStaffSelector();
         };
 
-        window.deleteTask = async (id) => { if(confirm("¿Borrar tarea?")) await deleteDoc(doc(db, "tasks", id)); };
+        function renderDistributionTable() {
+            const tableBody = document.getElementById('distribution-table');
+            const activeStaff = fullStaffList.filter(s => selectedStaffIds.includes(s.id));
+            
+            tableBody.innerHTML = activeStaff.map(s => `
+                <tr>
+                    <td class="p-4 font-bold text-gray-700">${s.name}</td>
+                    <td class="p-4 text-center">
+                        <input type="number" step="0.5" value="0" oninput="calculate()" 
+                        class="hour-input w-20 p-2 border-2 border-blue-100 rounded-xl text-center font-black" data-id="${s.id}" data-name="${s.name}">
+                    </td>
+                    <td class="p-4 text-right font-black text-blue-600 text-lg" id="res-${s.id}">$0.00</td>
+                </tr>`).join('');
+        }
 
-        window.addStaff = async () => {
-            const name = document.getElementById('staff-name').value;
-            if(name) await addDoc(collection(db, "staff"), { name: name, userId: currentUserId });
-            document.getElementById('staff-name').value = '';
-        };
-
-        window.deleteStaff = async (id) => { if(confirm("¿Quitar del staff?")) await deleteDoc(doc(db, "staff", id)); };
-
+        // CÁLCULOS Y GUARDADO
         window.calculate = () => {
             const total = parseFloat(document.getElementById('tip-total').value) || 0;
             const inputs = document.querySelectorAll('.hour-input');
@@ -198,10 +205,71 @@
             inputs.forEach(i => {
                 const id = i.getAttribute('data-id');
                 const monto = ((parseFloat(i.value) || 0) * vh).toFixed(2);
-                const resEl = document.getElementById(`res-${id}`);
-                if(resEl) resEl.innerText = `$${monto}`;
+                document.getElementById(`res-${id}`).innerText = `$${monto}`;
             });
         };
+
+        window.saveCierre = async () => {
+            const total = document.getElementById('tip-total').value;
+            const dateGen = document.getElementById('date-generated').value;
+            const payer = document.getElementById('payer-name').value;
+            
+            if(!total || !dateGen || !payer) return alert("Faltan datos (Monto, Fecha o Pagador)");
+
+            const repartos = [];
+            document.querySelectorAll('.hour-input').forEach(i => {
+                repartos.push({
+                    nombre: i.getAttribute('data-name'),
+                    horas: i.value,
+                    cobro: document.getElementById(`res-${i.getAttribute('data-id')}`).innerText
+                });
+            });
+
+            await addDoc(collection(db, "cierres"), {
+                userId: currentUserId,
+                fechaGenerado: dateGen,
+                fechaPagado: document.getElementById('date-paid').value,
+                pagador: payer,
+                montoTotal: total,
+                detalles: repartos,
+                timestamp: Date.now()
+            });
+
+            alert("Cierre guardado con éxito");
+            location.reload();
+        };
+
+        async function loadHistory() {
+            const snap = await getDocs(query(collection(db, "cierres"), where("userId", "==", currentUserId), orderBy("timestamp", "desc")));
+            document.getElementById('history-list').innerHTML = snap.docs.map(d => {
+                const c = d.data();
+                return `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border">
+                    <div class="flex justify-between border-b pb-2 mb-2">
+                        <span class="text-[10px] font-bold text-blue-600 uppercase">FECHA: ${c.fechaGenerado}</span>
+                        <span class="text-[10px] font-bold text-green-600 uppercase">PAGÓ: ${c.pagador}</span>
+                    </div>
+                    <div class="text-xl font-black mb-2">Total: $${c.montoTotal}</div>
+                    <div class="text-[10px] text-gray-500">
+                        ${c.detalles.map(p => `${p.nombre} (${p.horas}hs): ${p.cobro}`).join(' | ')}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // AUTH Y TAREAS (Se mantienen igual)
+        window.handleAuth = async () => {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); }
+        };
+        window.logout = () => signOut(auth);
+        window.saveTask = async () => {
+            const val = document.getElementById('task-input').value;
+            if(val) await addDoc(collection(db, "tasks"), { detail: val, userId: currentUserId });
+            document.getElementById('task-input').value = '';
+        };
+        window.deleteTask = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "tasks", id)); };
     </script>
 </body>
 </html>
