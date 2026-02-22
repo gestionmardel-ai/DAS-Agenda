@@ -131,13 +131,40 @@
                         </li>`).join('');
                 });
 
-                onSnapshot(query(collection(db, "staff"), where("userId", "==", currentUserId)), (snap) => {
-                    staffData = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                    document.getElementById('staff-list-db').innerHTML = staffData.map(s => `
-                        <li class="flex justify-between p-2 bg-gray-50 rounded-lg text-sm border">
-                            <span>${s.name}</span>
-                            <button onclick="deleteStaff('${s.id}')" class="text-red-300">×</button>
-                        </li>`).join('');
+onSnapshot(query(collection(db, "staff"), where("userId", "==", currentUserId)), (snap) => {
+    staffData = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    
+    // 1. Actualiza la lista de arriba (Personal en Turno)
+    const listDb = document.getElementById('staff-list-db');
+    listDb.innerHTML = staffData.map(s => `
+        <li class="flex justify-between p-2 bg-gray-50 rounded-lg text-sm border mb-1">
+            <span>${s.name}</span>
+            <button onclick="deleteStaff('${s.id}')" class="text-red-500 font-bold px-2">×</button>
+        </li>`).join('');
+    
+    // 2. Actualiza la tabla de abajo (La liquidación)
+    const tableBody = document.getElementById('distribution-table');
+    tableBody.innerHTML = ""; // Limpiamos la tabla por completo
+    
+    if (staffData.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400">No hay personal agregado</td></tr>';
+    } else {
+        staffData.forEach(s => {
+            const row = `
+                <tr class="border-b">
+                    <td class="p-4 font-bold text-gray-700">${s.name}</td>
+                    <td class="p-4 text-center">
+                        <input type="number" step="0.5" value="0" oninput="calculate()" 
+                        class="hour-input w-20 p-2 border-2 border-blue-100 rounded-xl text-center font-black" 
+                        data-id="${s.id}">
+                    </td>
+                    <td class="p-4 text-right font-black text-blue-600 text-lg" id="res-${s.id}">$0.00</td>
+                </tr>`;
+            tableBody.innerHTML += row;
+        });
+    }
+    calculate(); // Recalcula por si ya había números puestos
+});
                     
                     const tableBody = document.getElementById('distribution-table');
                     tableBody.innerHTML = staffData.map(s => `
@@ -188,3 +215,4 @@
     </script>
 </body>
 </html>
+
