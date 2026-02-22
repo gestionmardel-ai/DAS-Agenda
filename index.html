@@ -26,7 +26,7 @@
 
     <div id="agenda-screen" class="hidden">
         <nav class="bg-white border-b sticky top-0 z-50 flex justify-between items-center px-4 py-3 shadow-sm">
-            <h1 class="font-black italic text-blue-600">DAS-PRO</h1>
+            <h1 class="font-black italic text-blue-600 text-lg">DAS-PRO</h1>
             <div class="flex bg-gray-100 p-1 rounded-xl">
                 <button id="btn-tasks" onclick="showSection('tasks')" class="px-4 py-2 rounded-lg text-xs font-bold tab-active">TAREAS</button>
                 <button id="btn-tips" onclick="showSection('tips')" class="px-4 py-2 rounded-lg text-xs font-bold">PROPINAS</button>
@@ -139,10 +139,14 @@
                             <button onclick="deleteStaff('${s.id}')" class="text-red-300">×</button>
                         </li>`).join('');
                     
-                    document.getElementById('distribution-table').innerHTML = staffData.map(s => `
+                    const tableBody = document.getElementById('distribution-table');
+                    tableBody.innerHTML = staffData.map(s => `
                         <tr>
                             <td class="p-4 font-bold text-gray-700">${s.name}</td>
-                            <td class="p-4 text-center"><input type="number" step="0.5" value="0" oninput="calculate()" class="hour-input w-20 p-2 border rounded-xl text-center font-black" data-id="${s.id}"></td>
+                            <td class="p-4 text-center">
+                                <input type="number" step="0.5" value="0" oninput="calculate()" 
+                                class="hour-input w-20 p-2 border rounded-xl text-center font-black" data-id="${s.id}">
+                            </td>
                             <td class="p-4 text-right font-black text-blue-600 text-lg" id="res-${s.id}">$0.00</td>
                         </tr>`).join('');
                 });
