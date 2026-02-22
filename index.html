@@ -16,7 +16,7 @@
 
     <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center border">
-            <h2 class="text-3xl font-black text-blue-600 mb-6 italic">DAS-PRO</h2>
+            <h2 class="text-3xl font-black text-blue-600 mb-6 italic italic">DAS-PRO</h2>
             <input type="email" id="email" placeholder="Email" class="w-full p-4 mb-4 bg-gray-50 rounded-2xl border outline-none">
             <input type="password" id="password" placeholder="Clave" class="w-full p-4 mb-6 bg-gray-50 rounded-2xl border outline-none">
             <button onclick="handleAuth()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg">ENTRAR</button>
@@ -40,30 +40,30 @@
                     <h3 class="font-bold text-blue-600 uppercase text-[10px] tracking-widest">Datos del Cierre</h3>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[9px] font-bold text-gray-400">FECHA GENERADO</label>
+                            <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Generado</label>
                             <input type="date" id="date-generated" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
                         </div>
                         <div>
-                            <label class="text-[9px] font-bold text-gray-400">FECHA PAGADO</label>
+                            <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Pagado</label>
                             <input type="date" id="date-paid" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
                         </div>
                     </div>
                     <div>
-                        <label class="text-[9px] font-bold text-gray-400">¿QUIÉN PAGÓ?</label>
+                        <label class="text-[9px] font-bold text-gray-400 uppercase">¿Quién Pagó?</label>
                         <input type="text" id="payer-name" placeholder="Ej: Responsable de turno" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
                     </div>
                     <div>
-                        <label class="text-[9px] font-bold text-gray-400">MONTO TOTAL $</label>
+                        <label class="text-[9px] font-bold text-gray-400 uppercase">Monto Total $</label>
                         <input type="number" id="tip-total" oninput="calculate()" onfocus="this.select()" class="w-full p-3 bg-blue-50 border-2 border-blue-100 rounded-xl text-3xl font-black text-blue-700">
                     </div>
                 </div>
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border">
-                    <h3 class="font-bold text-gray-400 uppercase text-[10px] tracking-widest mb-4 text-center">Seleccionar Personal</h3>
+                    <h3 class="font-bold text-gray-400 uppercase text-[10px] tracking-widest mb-4 text-center">Personal Registrado</h3>
                     <div id="staff-selector" class="flex flex-wrap gap-2 mb-4 justify-center"></div>
                     <div class="flex gap-2 border-t pt-4">
-                        <input type="text" id="new-staff-name" placeholder="Nuevo empleado..." class="flex-grow p-2 border rounded-lg text-xs">
-                        <button onclick="addNewStaff()" class="bg-blue-600 text-white px-4 rounded-lg text-sm font-bold uppercase">+</button>
+                        <input type="text" id="new-staff-name" placeholder="Nuevo nombre..." class="flex-grow p-2 border rounded-lg text-xs">
+                        <button onclick="addNewStaff()" class="bg-blue-600 text-white px-4 rounded-lg text-sm font-bold">+</button>
                     </div>
                 </div>
             </div>
@@ -76,14 +76,14 @@
                     <tbody id="distribution-table" class="divide-y"></tbody>
                 </table>
                 <div class="p-4 bg-gray-50 text-right flex justify-between items-center border-t">
-                    <div class="text-left"><span class="text-[10px] font-bold text-gray-400 block uppercase">Valor por Hora</span><span id="vhour" class="text-xl font-black text-blue-600">$0.00</span></div>
+                    <div class="text-left"><span class="text-[9px] font-bold text-gray-400 block uppercase">Valor por Hora</span><span id="vhour" class="text-xl font-black text-blue-600">$0.00</span></div>
                     <button onclick="saveCierre()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-green-700 transition">GUARDAR CIERRE</button>
                 </div>
             </div>
         </main>
 
         <main id="section-history" class="hidden p-4 max-w-4xl mx-auto">
-            <h3 class="font-bold text-gray-500 uppercase text-[10px] tracking-widest mb-4">Cierres Guardados</h3>
+            <h3 class="font-bold text-gray-500 uppercase text-[10px] tracking-widest mb-4 uppercase">Historial de Propinas</h3>
             <div id="history-list" class="space-y-3"></div>
         </main>
 
@@ -160,13 +160,13 @@
 
         window.deleteStaffMember = async (e, id) => {
             e.stopPropagation();
-            if(confirm("¿Eliminar empleado definitivamente de la lista?")) await deleteDoc(doc(db, "staff_list", id));
+            if(confirm("¿Eliminar empleado definitivamente?")) await deleteDoc(doc(db, "staff_list", id));
         };
 
         function renderStaffSelector() {
             const container = document.getElementById('staff-selector');
             container.innerHTML = fullStaffList.map(s => `
-                <div class="flex items-center bg-white border rounded-full pl-3 pr-1 py-1 gap-2 transition-all shadow-sm ${selectedStaffIds.includes(s.id) ? 'bg-blue-600 border-blue-600 text-white' : 'text-gray-500'}">
+                <div class="flex items-center bg-white border rounded-full pl-3 pr-1 py-1 gap-2 shadow-sm transition-all ${selectedStaffIds.includes(s.id) ? 'bg-blue-600 border-blue-600 text-white' : 'text-gray-500'}">
                     <span class="text-xs font-bold cursor-pointer select-none" onclick="toggleStaff('${s.id}')">${s.name}</span>
                     <button onclick="deleteStaffMember(event, '${s.id}')" class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-red-500 hover:text-white text-[10px]">×</button>
                 </div>
@@ -212,7 +212,7 @@
             const inputs = document.querySelectorAll('.hour-input');
             let totalHoras = 0;
             
-            inputs.forEach(i => totalHoras += parseFloat(i.value) || 0);
+            inputs.forEach(i => { totalHoras += parseFloat(i.value) || 0; });
             const vh = totalHoras > 0 ? totalMonto / totalHoras : 0;
             document.getElementById('vhour').innerText = `$${vh.toFixed(2)}`;
 
@@ -250,7 +250,7 @@
                 timestamp: Date.now()
             });
 
-            alert("Cierre guardado correctamente.");
+            alert("Cierre guardado.");
             location.reload();
         };
 
@@ -258,9 +258,10 @@
             const hList = document.getElementById('history-list');
             hList.innerHTML = "<p class='text-center text-gray-400 p-10'>Cargando historial...</p>";
             try {
+                // Si esto falla es porque falta el INDICE en Firebase
                 const snap = await getDocs(query(collection(db, "cierres"), where("userId", "==", currentUserId), orderBy("timestamp", "desc")));
                 if(snap.empty) {
-                    hList.innerHTML = "<p class='text-center text-gray-400 p-10'>No hay cierres guardados.</p>";
+                    hList.innerHTML = "<p class='text-center text-gray-400 p-10 uppercase text-xs'>No hay cierres guardados.</p>";
                     return;
                 }
                 hList.innerHTML = snap.docs.map(d => {
@@ -281,7 +282,7 @@
                     </div>`;
                 }).join('');
             } catch (e) {
-                hList.innerHTML = "<p class='text-center text-red-400'>Error al conectar con el servidor.</p>";
+                hList.innerHTML = `<div class='text-center p-6'><p class='text-red-500 text-sm'>Error de servidor.</p><p class='text-[10px] text-gray-400 mt-2'>Asegúrate de haber creado el índice en la consola de Firebase.</p></div>`;
                 console.error(e);
             }
         }
@@ -289,7 +290,7 @@
         window.handleAuth = async () => {
             const e = document.getElementById('email').value.trim();
             const p = document.getElementById('password').value.trim();
-            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("Acceso denegado: " + err.message); }
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("Error: " + err.message); }
         };
         window.logout = () => signOut(auth);
         window.saveTask = async () => {
@@ -297,7 +298,7 @@
             if(val) await addDoc(collection(db, "tasks"), { detail: val, userId: currentUserId });
             document.getElementById('task-input').value = '';
         };
-        window.deleteTask = async (id) => { if(confirm("¿Eliminar tarea?")) await deleteDoc(doc(db, "tasks", id)); };
+        window.deleteTask = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "tasks", id)); };
     </script>
 </body>
 </html>
