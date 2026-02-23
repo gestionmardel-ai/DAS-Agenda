@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAS-PRO | Gestión</title>
+    <title>DAS-PRO | Daniel Alberto Santini</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -20,11 +20,7 @@
         .priority-Media { border-left: 5px solid #f59e0b !important; }
         .priority-Baja { border-left: 5px solid #10b981 !important; }
         .vencido { color: #ef4444; font-weight: bold; }
-        /* Estilo para los botones del menú */
-        .menu-card {
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
+        .menu-card { transition: all 0.2s ease; cursor: pointer; }
         .menu-card:active { transform: scale(0.95); }
     </style>
 </head>
@@ -39,7 +35,9 @@
 
     <div id="login-screen" class="hidden flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center border">
-            <h2 class="text-3xl font-black text-blue-600 mb-6 italic uppercase">DAS-PRO</h2>
+            <h2 class="text-3xl font-black text-blue-600 italic uppercase leading-none">DAS-PRO</h2>
+            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.3em] mb-6 mt-1">Daniel Alberto Santini</p>
+            
             <div class="space-y-4">
                 <input type="email" id="email" placeholder="Email" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-blue-400">
                 <input type="password" id="password" placeholder="Clave" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-blue-400">
@@ -49,46 +47,34 @@
     </div>
 
     <div id="agenda-screen" class="hidden">
-        <nav class="bg-white border-b sticky top-0 z-50 flex justify-between items-center px-4 py-3 shadow-sm">
-            <h1 onclick="showSection('home')" class="font-black italic text-blue-600 uppercase tracking-tighter cursor-pointer">DAS-PRO</h1>
+        <nav class="bg-white border-b sticky top-0 z-50 flex justify-between items-center px-4 py-2 shadow-sm">
+            <div onclick="showSection('home')" class="cursor-pointer">
+                <h1 class="font-black italic text-blue-600 uppercase tracking-tighter leading-none text-lg">DAS-PRO</h1>
+                <p class="text-[7px] font-bold text-gray-400 uppercase tracking-widest leading-none">Daniel Alberto Santini</p>
+            </div>
             <button id="logout-btn" class="p-2 text-red-400"><i class="fas fa-power-off"></i></button>
         </nav>
 
         <main id="section-home" class="p-6 max-w-xl mx-auto space-y-4">
             <div class="text-center py-4">
-                <h2 class="text-2xl font-black text-gray-700 uppercase italic">¡Bienvenido!</h2>
-                <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">¿Qué vamos a gestionar hoy?</p>
+                <h2 class="text-2xl font-black text-gray-700 uppercase italic leading-none">¡Bienvenido!</h2>
+                <p class="text-[11px] text-blue-500 font-black uppercase tracking-widest mt-2 mb-3">Daniel Alberto Santini</p>
+                <div class="h-[1px] w-12 bg-gray-200 mx-auto mb-3"></div>
+                <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Panel de Gestión Gastronómica</p>
             </div>
             
             <div class="grid grid-cols-1 gap-4">
                 <div onclick="showSection('tasks')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-blue-500 flex items-center gap-5">
-                    <div class="bg-blue-100 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-600 text-2xl">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Agenda de Tareas</h3>
-                        <p class="text-xs text-gray-400">Pendientes, compras y avisos.</p>
-                    </div>
+                    <div class="bg-blue-100 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-600 text-2xl"><i class="fas fa-tasks"></i></div>
+                    <div><h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Agenda de Tareas</h3><p class="text-xs text-gray-400">Pendientes y avisos.</p></div>
                 </div>
-
                 <div onclick="showSection('tips')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-green-500 flex items-center gap-5">
-                    <div class="bg-green-100 w-14 h-14 rounded-2xl flex items-center justify-center text-green-600 text-2xl">
-                        <i class="fas fa-hand-holding-usd"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Cierre de Propinas</h3>
-                        <p class="text-xs text-gray-400">Calcular distribución y pago.</p>
-                    </div>
+                    <div class="bg-green-100 w-14 h-14 rounded-2xl flex items-center justify-center text-green-600 text-2xl"><i class="fas fa-hand-holding-usd"></i></div>
+                    <div><h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Cierre de Propinas</h3><p class="text-xs text-gray-400">Calcular distribución.</p></div>
                 </div>
-
                 <div onclick="showSection('history')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-purple-500 flex items-center gap-5">
-                    <div class="bg-purple-100 w-14 h-14 rounded-2xl flex items-center justify-center text-purple-600 text-2xl">
-                        <i class="fas fa-history"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Historial</h3>
-                        <p class="text-xs text-gray-400">Consultar pagos anteriores.</p>
-                    </div>
+                    <div class="bg-purple-100 w-14 h-14 rounded-2xl flex items-center justify-center text-purple-600 text-2xl"><i class="fas fa-history"></i></div>
+                    <div><h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Historial</h3><p class="text-xs text-gray-400">Consultar pagos anteriores.</p></div>
                 </div>
             </div>
         </main>
@@ -98,25 +84,12 @@
             <div class="bg-white p-5 rounded-2xl shadow-sm border space-y-3">
                 <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-gray-50 rounded-xl outline-none border-none ring-1 ring-gray-200 focus:ring-blue-400">
                 <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[9px] font-bold text-gray-400 uppercase block">Vencimiento</label>
-                        <input type="date" id="task-date" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-bold text-gray-400 uppercase block">Prioridad</label>
-                        <select id="task-priority" class="w-full p-2 bg-gray-50 border rounded-xl text-sm font-bold">
-                            <option value="Baja">BAJA</option>
-                            <option value="Media">MEDIA</option>
-                            <option value="Alta">ALTA</option>
-                        </select>
-                    </div>
+                    <div><label class="text-[9px] font-bold text-gray-400 uppercase block">Vencimiento</label><input type="date" id="task-date" class="w-full p-2 bg-gray-50 border rounded-xl text-sm"></div>
+                    <div><label class="text-[9px] font-bold text-gray-400 uppercase block">Prioridad</label><select id="task-priority" class="w-full p-2 bg-gray-50 border rounded-xl text-sm font-bold"><option value="Baja">BAJA</option><option value="Media">MEDIA</option><option value="Alta">ALTA</option></select></div>
                 </div>
                 <button onclick="saveTask()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold shadow-md">+ AGREGAR TAREA</button>
             </div>
-            <div class="relative">
-                <i class="fas fa-search absolute left-3 top-3 text-gray-400 text-xs"></i>
-                <input type="text" id="search-tasks" oninput="renderTasks(window.cachedTasks)" placeholder="Buscar tarea..." class="w-full pl-9 p-2 bg-white rounded-xl border text-xs outline-none focus:ring-1 focus:ring-blue-400">
-            </div>
+            <div class="relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400 text-xs"></i><input type="text" id="search-tasks" oninput="renderTasks(window.cachedTasks)" placeholder="Buscar tarea..." class="w-full pl-9 p-2 bg-white rounded-xl border text-xs outline-none focus:ring-1 focus:ring-blue-400"></div>
             <div id="task-list" class="space-y-2"></div>
         </main>
 
@@ -126,33 +99,14 @@
                 <div class="bg-white p-5 rounded-2xl shadow-sm border space-y-3">
                     <h3 class="font-bold text-blue-600 uppercase text-[10px] tracking-widest">Datos del Cierre</h3>
                     <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Propina</label>
-                            <input type="date" id="date-generated" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Pago</label>
-                            <input type="date" id="date-paid" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
-                        </div>
+                        <div><label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Propina</label><input type="date" id="date-generated" class="w-full p-2 bg-gray-50 border rounded-xl text-sm"></div>
+                        <div><label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Pago</label><input type="date" id="date-paid" class="w-full p-2 bg-gray-50 border rounded-xl text-sm"></div>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[9px] font-bold text-gray-400 uppercase">Turno</label>
-                            <select id="shift" class="w-full p-2 bg-gray-50 border rounded-xl text-sm font-bold">
-                                <option value="Mañana">MAÑANA</option>
-                                <option value="Noche">NOCHE</option>
-                                <option value="Evento">EVENTO</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold text-gray-400 uppercase">¿Quién Pagó?</label>
-                            <input type="text" id="payer-name" placeholder="Responsable" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
-                        </div>
+                        <div><label class="text-[9px] font-bold text-gray-400 uppercase">Turno</label><select id="shift" class="w-full p-2 bg-gray-50 border rounded-xl text-sm font-bold"><option value="Mañana">MAÑANA</option><option value="Noche">NOCHE</option><option value="Evento">EVENTO</option></select></div>
+                        <div><label class="text-[9px] font-bold text-gray-400 uppercase">¿Quién Pagó?</label><input type="text" id="payer-name" placeholder="Responsable" class="w-full p-2 bg-gray-50 border rounded-xl text-sm"></div>
                     </div>
-                    <div>
-                        <label class="text-[9px] font-bold text-gray-400 uppercase">Monto Total $</label>
-                        <input type="number" id="tip-total" oninput="calculate()" onfocus="this.select()" class="w-full p-3 bg-blue-50 border-2 border-blue-100 rounded-xl text-3xl font-black text-blue-700">
-                    </div>
+                    <div><label class="text-[9px] font-bold text-gray-400 uppercase">Monto Total $</label><input type="number" id="tip-total" oninput="calculate()" onfocus="this.select()" class="w-full p-3 bg-blue-50 border-2 border-blue-100 rounded-xl text-3xl font-black text-blue-700"></div>
                 </div>
                 <div class="bg-white p-5 rounded-2xl shadow-sm border">
                     <h3 class="font-bold text-gray-400 uppercase text-[10px] tracking-widest mb-4 text-center">Seleccionar Personal</h3>
@@ -188,10 +142,7 @@
                         <option value="fechaPagado">Fecha Pago</option>
                     </select>
                 </div>
-                <div class="relative">
-                    <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i>
-                    <input type="text" id="search-history" oninput="renderHistory()" placeholder="Buscar empleado, pagador o turno..." class="w-full pl-9 p-2 bg-gray-50 rounded-lg border text-xs outline-none focus:ring-1 focus:ring-blue-400">
-                </div>
+                <div class="relative"><i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i><input type="text" id="search-history" oninput="renderHistory()" placeholder="Buscar empleado, pagador o turno..." class="w-full pl-9 p-2 bg-gray-50 rounded-lg border text-xs outline-none focus:ring-1 focus:ring-blue-400"></div>
             </div>
             <div id="history-list" class="space-y-3"></div>
         </main>
@@ -243,7 +194,7 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('agenda-screen').classList.remove('hidden');
                 loading.classList.add('hidden');
-                showSection('home'); // Siempre iniciar en el HOME
+                showSection('home');
                 
                 document.getElementById('date-generated').valueAsDate = new Date();
                 document.getElementById('task-date').valueAsDate = new Date();
@@ -272,7 +223,6 @@
         };
         document.getElementById('logout-btn').onclick = () => signOut(auth);
 
-        // --- TAREAS ---
         window.renderTasks = (tasks) => {
             const list = document.getElementById('task-list');
             const search = document.getElementById('search-tasks').value.toLowerCase();
@@ -299,7 +249,6 @@
         window.toggleTask = async (id, currentStatus) => { await updateDoc(doc(db, "tasks", id), { completed: !currentStatus }); };
         window.deleteTask = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "tasks", id)); };
 
-        // --- PROPINAS ---
         window.addNewStaff = async () => {
             const name = document.getElementById('new-staff-name').value.trim();
             if(name) await addDoc(collection(db, "staff_list"), { name, userId: currentUserId });
@@ -353,7 +302,6 @@
             alert("¡Guardado!"); location.reload();
         };
 
-        // --- HISTORIAL ---
         window.loadHistory = async () => {
             const hList = document.getElementById('history-list');
             hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Cargando historial...</p>";
