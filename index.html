@@ -7,8 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Pantalla de carga para evitar parpadeo */
+        #loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #f3f4f6; display: flex; align-items: center; justify-content: center; z-index: 9999;
+        }
         .tab-active { background-color: #2563eb !important; color: white !important; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .hour-input:focus { background-color: #fef9c3; outline: none; border-color: #2563eb; }
         .pill-selected { background-color: #2563eb !important; color: #ffffff !important; border-color: #1e40af !important; }
         .task-completed { text-decoration: line-through; opacity: 0.6; }
@@ -20,29 +25,38 @@
 </head>
 <body class="bg-gray-100 min-h-screen font-sans text-gray-800">
 
-    <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
+    <div id="loading-screen">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Iniciando DAS-PRO...</p>
+        </div>
+    </div>
+
+    <div id="login-screen" class="hidden flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center border">
-            <h2 class="text-3xl font-black text-blue-600 mb-6 italic">DAS-PRO</h2>
-            <input type="email" id="email" placeholder="Email" class="w-full p-4 mb-4 bg-gray-50 rounded-2xl border outline-none">
-            <input type="password" id="password" placeholder="Clave" class="w-full p-4 mb-6 bg-gray-50 rounded-2xl border outline-none">
-            <button onclick="handleAuth()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg">ENTRAR</button>
+            <h2 class="text-3xl font-black text-blue-600 mb-6 italic uppercase">DAS-PRO</h2>
+            <div class="space-y-4">
+                <input type="email" id="email" placeholder="Email" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="password" id="password" placeholder="Clave" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-blue-400">
+                <button id="login-btn" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700">ENTRAR</button>
+            </div>
         </div>
     </div>
 
     <div id="agenda-screen" class="hidden">
         <nav class="bg-white border-b sticky top-0 z-50 flex justify-between items-center px-4 py-3 shadow-sm">
-            <h1 class="font-black italic text-blue-600">DAS-PRO</h1>
+            <h1 class="font-black italic text-blue-600 uppercase tracking-tighter">DAS-PRO</h1>
             <div class="flex bg-gray-200 p-1 rounded-xl gap-1">
                 <button id="btn-tasks" onclick="showSection('tasks')" class="px-3 py-1 rounded-lg text-[10px] font-bold tab-active uppercase">Tareas</button>
                 <button id="btn-tips" onclick="showSection('tips')" class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Propinas</button>
                 <button id="btn-history" onclick="showSection('history')" class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Historial</button>
             </div>
-            <button onclick="logout()"><i class="fas fa-power-off text-red-400"></i></button>
+            <button id="logout-btn" class="p-2"><i class="fas fa-power-off text-red-400"></i></button>
         </nav>
 
         <main id="section-tasks" class="p-4 max-w-xl mx-auto space-y-4">
             <div class="bg-white p-5 rounded-2xl shadow-sm border space-y-3">
-                <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-gray-50 rounded-xl outline-none border">
+                <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-gray-50 rounded-xl outline-none border-none ring-1 ring-gray-200">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[9px] font-bold text-gray-400 uppercase block">Vencimiento</label>
@@ -68,11 +82,11 @@
                     <h3 class="font-bold text-blue-600 uppercase text-[10px] tracking-widest">Datos del Cierre</h3>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha de Propina</label>
+                            <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Propina</label>
                             <input type="date" id="date-generated" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
                         </div>
                         <div>
-                            <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Pagado</label>
+                            <label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Pago</label>
                             <input type="date" id="date-paid" class="w-full p-2 bg-gray-50 border rounded-xl text-sm">
                         </div>
                     </div>
@@ -95,7 +109,6 @@
                         <input type="number" id="tip-total" oninput="calculate()" onfocus="this.select()" class="w-full p-3 bg-blue-50 border-2 border-blue-100 rounded-xl text-3xl font-black text-blue-700">
                     </div>
                 </div>
-
                 <div class="bg-white p-5 rounded-2xl shadow-sm border">
                     <h3 class="font-bold text-gray-400 uppercase text-[10px] tracking-widest mb-4 text-center">Seleccionar Personal</h3>
                     <div id="staff-selector" class="flex flex-wrap gap-2 mb-4 justify-center"></div>
@@ -150,181 +163,14 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
         let currentUserId = null;
         let fullStaffList = [];
         let selectedStaffIds = [];
         let hoursMemory = {};
-        let cachedHistory = []; // Para ordenar sin recargar de Firebase
+        let cachedHistory = [];
 
         window.showSection = (section) => {
             ['tasks', 'tips', 'history'].forEach(s => {
                 document.getElementById(`section-${s}`).classList.toggle('hidden', s !== section);
-                document.getElementById(`btn-${s}`).classList.toggle('tab-active', s === section);
-            });
-            if(section === 'history') loadHistory();
-        };
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUserId = user.uid;
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('agenda-screen').classList.remove('hidden');
-                document.getElementById('date-generated').valueAsDate = new Date();
-                document.getElementById('task-date').valueAsDate = new Date();
-                
-                // Carga Personal
-                onSnapshot(query(collection(db, "staff_list"), where("userId", "==", currentUserId)), (snap) => {
-                    fullStaffList = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                    fullStaffList.sort((a, b) => a.name.localeCompare(b.name));
-                    renderStaffSelector();
-                });
-
-                // Carga Tareas (Sin el orderBy para evitar que desaparezcan si falta el campo date)
-                onSnapshot(query(collection(db, "tasks"), where("userId", "==", currentUserId)), (snap) => {
-                    const tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                    tasks.sort((a, b) => (a.date || "") > (b.date || "") ? 1 : -1);
-                    renderTasks(tasks);
-                });
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('agenda-screen').classList.add('hidden');
-            }
-        });
-
-        // --- TAREAS ---
-        function renderTasks(tasks) {
-            const list = document.getElementById('task-list');
-            const hoy = new Date().toISOString().split('T')[0];
-            list.innerHTML = tasks.map(t => {
-                const esVencido = !t.completed && t.date && t.date < hoy;
-                return `
-                <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between priority-${t.priority || 'Baja'}">
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}', ${t.completed})" class="w-5 h-5">
-                        <div>
-                            <p class="font-bold text-sm ${t.completed ? 'task-completed' : ''}">${t.detail}</p>
-                            <p class="text-[10px] ${esVencido ? 'vencido' : 'text-gray-400'}">Vence: ${t.date || 'Sin fecha'} | Prioridad: ${t.priority || 'Baja'}</p>
-                        </div>
-                    </div>
-                    <button onclick="deleteTask('${t.id}')" class="text-gray-400 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
-                </div>`;
-            }).join('');
-        }
-
-        window.saveTask = async () => {
-            const detail = document.getElementById('task-input').value;
-            const date = document.getElementById('task-date').value;
-            const priority = document.getElementById('task-priority').value;
-            if(!detail) return;
-            await addDoc(collection(db, "tasks"), { detail, date, priority, completed: false, userId: currentUserId });
-            document.getElementById('task-input').value = '';
-        };
-
-        window.toggleTask = async (id, currentStatus) => { await updateDoc(doc(db, "tasks", id), { completed: !currentStatus }); };
-        window.deleteTask = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "tasks", id)); };
-
-        // --- PROPINAS ---
-        window.addNewStaff = async () => {
-            const name = document.getElementById('new-staff-name').value.trim();
-            if(name) await addDoc(collection(db, "staff_list"), { name, userId: currentUserId });
-            document.getElementById('new-staff-name').value = "";
-        };
-        window.deleteStaffMember = async (e, id) => { e.stopPropagation(); if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "staff_list", id)); };
-        function renderStaffSelector() {
-            const container = document.getElementById('staff-selector');
-            container.innerHTML = fullStaffList.map(s => `
-                <div class="flex items-center border rounded-full pl-3 pr-1 py-1 gap-2 shadow-sm transition-all ${selectedStaffIds.includes(s.id) ? 'pill-selected' : 'bg-white text-gray-500'}">
-                    <span class="text-xs font-bold cursor-pointer select-none" onclick="toggleStaff('${s.id}')">${s.name}</span>
-                    <button onclick="deleteStaffMember(event, '${s.id}')" class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-red-500 hover:text-white text-[10px]">×</button>
-                </div>`).join('');
-            renderDistributionTable();
-        }
-        window.toggleStaff = (id) => {
-            selectedStaffIds.includes(id) ? selectedStaffIds = selectedStaffIds.filter(i => i !== id) : selectedStaffIds.push(id);
-            renderStaffSelector();
-        };
-        function renderDistributionTable() {
-            const tableBody = document.getElementById('distribution-table');
-            const activeStaff = fullStaffList.filter(s => selectedStaffIds.includes(s.id));
-            tableBody.innerHTML = activeStaff.map(s => `
-                <tr>
-                    <td class="p-4 font-bold text-gray-700">${s.name}</td>
-                    <td class="p-4 text-center">
-                        <input type="number" step="0.5" value="${hoursMemory[s.id] || 0}" 
-                        oninput="updateHours('${s.id}', this.value)" onfocus="this.select()"
-                        class="hour-input w-20 p-2 border-2 border-blue-100 rounded-xl text-center font-black" data-id="${s.id}" data-name="${s.name}">
-                    </td>
-                    <td class="p-4 text-right font-black text-blue-600 text-lg" id="res-${s.id}">$0.00</td>
-                </tr>`).join('');
-            calculate();
-        }
-        window.updateHours = (id, val) => { hoursMemory[id] = val; calculate(); };
-        window.calculate = () => {
-            const total = parseFloat(document.getElementById('tip-total').value) || 0;
-            const inputs = document.querySelectorAll('.hour-input');
-            let totalH = 0;
-            inputs.forEach(i => totalH += parseFloat(i.value) || 0);
-            const vh = totalH > 0 ? total / totalH : 0;
-            document.getElementById('vhour').innerText = `$${vh.toFixed(2)}`;
-            inputs.forEach(i => {
-                const id = i.getAttribute('data-id');
-                const monto = (parseFloat(i.value || 0) * vh).toFixed(2);
-                if(document.getElementById(`res-${id}`)) document.getElementById(`res-${id}`).innerText = `$${monto}`;
-            });
-        };
-
-        window.saveCierre = async () => {
-            const total = document.getElementById('tip-total').value;
-            const dateGen = document.getElementById('date-generated').value;
-            const datePaid = document.getElementById('date-paid').value;
-            const payer = document.getElementById('payer-name').value;
-            const shift = document.getElementById('shift').value;
-            if(!total || !dateGen || !payer) return alert("Faltan datos.");
-            const repartos = [];
-            document.querySelectorAll('.hour-input').forEach(i => {
-                repartos.push({ nombre: i.getAttribute('data-name'), horas: i.value, cobro: document.getElementById(`res-${i.getAttribute('data-id')}`).innerText });
-            });
-            await addDoc(collection(db, "cierres"), {
-                userId: currentUserId, fechaGenerado: dateGen, fechaPagado: datePaid,
-                pagador: payer, turno: shift, montoTotal: total, detalles: repartos, timestamp: Date.now()
-            });
-            alert("¡Cierre guardado!"); location.reload();
-        };
-
-        // --- HISTORIAL ---
-        async function loadHistory() {
-            const hList = document.getElementById('history-list');
-            hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Cargando...</p>";
-            try {
-                const snap = await getDocs(query(collection(db, "cierres"), where("userId", "==", currentUserId)));
-                cachedHistory = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                renderHistory();
-            } catch (e) { hList.innerHTML = "<p class='text-red-500 text-xs'>Error de servidor.</p>"; }
-        }
-
-        window.renderHistory = () => {
-            const hList = document.getElementById('history-list');
-            const sortField = document.getElementById('sort-history').value;
-            
-            // Ordenar el array localmente
-            const sorted = [...cachedHistory].sort((a, b) => {
-                return (a[sortField] || "") < (b[sortField] || "") ? 1 : -1;
-            });
-
-            if(sorted.length === 0) { hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Sin cierres.</p>"; return; }
-            hList.innerHTML = sorted.map(c => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-l-4 border-l-blue-500">
-                    <div class="flex justify-between items-start mb-3">
-                        <div><span class="text-[9px] font-bold text-gray-400 block uppercase">FECHA PROPINA</span><span class="font-bold text-sm">${c.fechaGenerado}</span></div>
-                        <div class="text-right">
-                            <span class="text-[9px] font-bold text-gray-400 block uppercase">PAGADO POR:</span>
-                            <span class="font-bold text-sm text-blue-600">${c.pagador} (${c.turno})</span>
-                        </div>
-                    </div>
-                    <div class="bg-blue-50 p-3 rounded-xl mb-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-blue-800 uppercase">Total:</span><span class="text-xl font-black text-blue-700">$${c.montoTotal}</span>
-                        </div>
-                        <div class="text-[9px] font-bold text-gray-400 uppercase mt-1">Fecha de pago: ${c.fechaPagado || '---'}</div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-1 text-
+                document.getElementById(`btn-${s}`).classList.toggle('tab-active',
