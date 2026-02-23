@@ -20,6 +20,12 @@
         .priority-Media { border-left: 5px solid #f59e0b !important; }
         .priority-Baja { border-left: 5px solid #10b981 !important; }
         .vencido { color: #ef4444; font-weight: bold; }
+        /* Estilo para los botones del menú */
+        .menu-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .menu-card:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen font-sans text-gray-800">
@@ -44,16 +50,51 @@
 
     <div id="agenda-screen" class="hidden">
         <nav class="bg-white border-b sticky top-0 z-50 flex justify-between items-center px-4 py-3 shadow-sm">
-            <h1 class="font-black italic text-blue-600 uppercase tracking-tighter">DAS-PRO</h1>
-            <div class="flex bg-gray-200 p-1 rounded-xl gap-1">
-                <button id="btn-tasks" onclick="showSection('tasks')" class="px-3 py-1 rounded-lg text-[10px] font-bold tab-active uppercase">Tareas</button>
-                <button id="btn-tips" onclick="showSection('tips')" class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Propinas</button>
-                <button id="btn-history" onclick="showSection('history')" class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase">Historial</button>
-            </div>
-            <button id="logout-btn" class="p-2"><i class="fas fa-power-off text-red-400"></i></button>
+            <h1 onclick="showSection('home')" class="font-black italic text-blue-600 uppercase tracking-tighter cursor-pointer">DAS-PRO</h1>
+            <button id="logout-btn" class="p-2 text-red-400"><i class="fas fa-power-off"></i></button>
         </nav>
 
-        <main id="section-tasks" class="p-4 max-w-xl mx-auto space-y-4">
+        <main id="section-home" class="p-6 max-w-xl mx-auto space-y-4">
+            <div class="text-center py-4">
+                <h2 class="text-2xl font-black text-gray-700 uppercase italic">¡Bienvenido!</h2>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">¿Qué vamos a gestionar hoy?</p>
+            </div>
+            
+            <div class="grid grid-cols-1 gap-4">
+                <div onclick="showSection('tasks')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-blue-500 flex items-center gap-5">
+                    <div class="bg-blue-100 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-600 text-2xl">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Agenda de Tareas</h3>
+                        <p class="text-xs text-gray-400">Pendientes, compras y avisos.</p>
+                    </div>
+                </div>
+
+                <div onclick="showSection('tips')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-green-500 flex items-center gap-5">
+                    <div class="bg-green-100 w-14 h-14 rounded-2xl flex items-center justify-center text-green-600 text-2xl">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Cierre de Propinas</h3>
+                        <p class="text-xs text-gray-400">Calcular distribución y pago.</p>
+                    </div>
+                </div>
+
+                <div onclick="showSection('history')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-purple-500 flex items-center gap-5">
+                    <div class="bg-purple-100 w-14 h-14 rounded-2xl flex items-center justify-center text-purple-600 text-2xl">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Historial</h3>
+                        <p class="text-xs text-gray-400">Consultar pagos anteriores.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <main id="section-tasks" class="hidden p-4 max-w-xl mx-auto space-y-4">
+            <button onclick="showSection('home')" class="text-[10px] font-bold text-blue-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver al menú</button>
             <div class="bg-white p-5 rounded-2xl shadow-sm border space-y-3">
                 <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-gray-50 rounded-xl outline-none border-none ring-1 ring-gray-200 focus:ring-blue-400">
                 <div class="grid grid-cols-2 gap-2">
@@ -74,12 +115,13 @@
             </div>
             <div class="relative">
                 <i class="fas fa-search absolute left-3 top-3 text-gray-400 text-xs"></i>
-                <input type="text" id="search-tasks" oninput="renderTasks(cachedTasks)" placeholder="Buscar tarea..." class="w-full pl-9 p-2 bg-white rounded-xl border text-xs outline-none focus:ring-1 focus:ring-blue-400">
+                <input type="text" id="search-tasks" oninput="renderTasks(window.cachedTasks)" placeholder="Buscar tarea..." class="w-full pl-9 p-2 bg-white rounded-xl border text-xs outline-none focus:ring-1 focus:ring-blue-400">
             </div>
             <div id="task-list" class="space-y-2"></div>
         </main>
 
         <main id="section-tips" class="hidden p-4 max-w-4xl mx-auto space-y-4">
+            <button onclick="showSection('home')" class="text-[10px] font-bold text-blue-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver al menú</button>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border space-y-3">
                     <h3 class="font-bold text-blue-600 uppercase text-[10px] tracking-widest">Datos del Cierre</h3>
@@ -136,6 +178,7 @@
         </main>
 
         <main id="section-history" class="hidden p-4 max-w-4xl mx-auto space-y-4">
+            <button onclick="showSection('home')" class="text-[10px] font-bold text-blue-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver al menú</button>
             <div class="flex flex-col gap-2 bg-white p-3 rounded-xl border shadow-sm">
                 <div class="flex justify-between items-center mb-1">
                     <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ordenar por:</span>
@@ -187,9 +230,8 @@
         };
 
         window.showSection = (section) => {
-            ['tasks', 'tips', 'history'].forEach(s => {
+            ['home', 'tasks', 'tips', 'history'].forEach(s => {
                 document.getElementById(`section-${s}`).classList.toggle('hidden', s !== section);
-                document.getElementById(`btn-${s}`).classList.toggle('tab-active', s === section);
             });
             if(section === 'history') loadHistory();
         };
@@ -201,6 +243,8 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('agenda-screen').classList.remove('hidden');
                 loading.classList.add('hidden');
+                showSection('home'); // Siempre iniciar en el HOME
+                
                 document.getElementById('date-generated').valueAsDate = new Date();
                 document.getElementById('task-date').valueAsDate = new Date();
                 
@@ -228,7 +272,7 @@
         };
         document.getElementById('logout-btn').onclick = () => signOut(auth);
 
-        // TAREAS
+        // --- TAREAS ---
         window.renderTasks = (tasks) => {
             const list = document.getElementById('task-list');
             const search = document.getElementById('search-tasks').value.toLowerCase();
@@ -255,7 +299,7 @@
         window.toggleTask = async (id, currentStatus) => { await updateDoc(doc(db, "tasks", id), { completed: !currentStatus }); };
         window.deleteTask = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "tasks", id)); };
 
-        // STAFF
+        // --- PROPINAS ---
         window.addNewStaff = async () => {
             const name = document.getElementById('new-staff-name').value.trim();
             if(name) await addDoc(collection(db, "staff_list"), { name, userId: currentUserId });
@@ -309,7 +353,7 @@
             alert("¡Guardado!"); location.reload();
         };
 
-        // HISTORIAL POTENCIADO
+        // --- HISTORIAL ---
         window.loadHistory = async () => {
             const hList = document.getElementById('history-list');
             hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Cargando historial...</p>";
@@ -324,34 +368,23 @@
             const hList = document.getElementById('history-list');
             const sortField = document.getElementById('sort-history').value;
             const search = document.getElementById('search-history').value.toLowerCase();
-            
             let filtered = [...cachedHistory].sort((a, b) => (a[sortField] || "") < (b[sortField] || "") ? 1 : -1);
-            
             if(search) {
-                filtered = filtered.filter(c => 
-                    c.pagador.toLowerCase().includes(search) || 
-                    c.turno.toLowerCase().includes(search) ||
-                    c.detalles.some(d => d.nombre.toLowerCase().includes(search)) // Búsqueda por empleado
-                );
+                filtered = filtered.filter(c => c.pagador.toLowerCase().includes(search) || c.turno.toLowerCase().includes(search) || c.detalles.some(d => d.nombre.toLowerCase().includes(search)));
             }
-
             if(filtered.length === 0) { hList.innerHTML = "<p class='text-center p-10 text-gray-400 text-xs'>Sin resultados.</p>"; return; }
-            
             hList.innerHTML = filtered.map(c => `
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-l-4 border-l-blue-500">
                     <div class="flex justify-between items-start mb-3">
-                        <div><span class="text-[9px] font-bold text-gray-400 block uppercase tracking-tighter">FECHA PROPINA</span>
-                        <span class="font-bold text-sm">${formatDate(c.fechaGenerado)}</span></div>
-                        <div class="text-right"><span class="text-[9px] font-bold text-gray-400 block uppercase tracking-tighter">PAGÓ:</span>
-                        <span class="font-bold text-sm text-blue-600">${c.pagador}</span></div>
+                        <div><span class="text-[9px] font-bold text-gray-400 block uppercase">FECHA PROPINA</span><span class="font-bold text-sm">${formatDate(c.fechaGenerado)}</span></div>
+                        <div class="text-right"><span class="text-[9px] font-bold text-gray-400 block uppercase">PAGÓ:</span><span class="font-bold text-sm text-blue-600">${c.pagador}</span></div>
                     </div>
                     <div class="bg-blue-50 p-3 rounded-xl mb-3 flex justify-between items-center">
                         <div><span class="text-xs font-bold text-blue-800 uppercase">Total:</span><span class="text-xl font-black text-blue-700 ml-2">$${c.montoTotal}</span></div>
                         <div class="text-[9px] font-bold text-gray-400 uppercase text-right">TURNO: ${c.turno}<br>PAGO: ${formatDate(c.fechaPagado)}</div>
                     </div>
                     <div class="grid grid-cols-1 gap-1 text-[11px] text-gray-600 border-t pt-2">
-                        ${c.detalles.map(p => `<div class="flex justify-between ${search && p.nombre.toLowerCase().includes(search) ? 'bg-yellow-100 font-bold' : ''}">
-                            <span>${p.nombre} (${p.horas}hs)</span><span>${p.cobro}</span></div>`).join('')}
+                        ${c.detalles.map(p => `<div class="flex justify-between ${search && p.nombre.toLowerCase().includes(search) ? 'bg-yellow-100 font-bold' : ''}"><span>${p.nombre} (${p.horas}hs)</span><span>${p.cobro}</span></div>`).join('')}
                     </div>
                 </div>`).join('');
         };
