@@ -12,8 +12,8 @@
             background: #f3f4f6; display: flex; align-items: center; justify-content: center; z-index: 9999;
         }
         .hidden { display: none !important; }
-        .hour-input:focus { background-color: #fef9c3; outline: none; border-color: #2563eb; }
-        .pill-selected { background-color: #2563eb !important; color: #ffffff !important; border-color: #1e40af !important; }
+        .hour-input:focus { background-color: #fff7ed; outline: none; border-color: #ea580c; }
+        .pill-selected { background-color: #ea580c !important; color: #ffffff !important; border-color: #c2410c !important; }
         .task-completed { text-decoration: line-through; opacity: 0.6; }
         .priority-Alta { border-left: 5px solid #ef4444 !important; }
         .priority-Media { border-left: 5px solid #f59e0b !important; }
@@ -27,26 +27,28 @@
 
     <div id="loading-screen">
         <div class="text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Iniciando sistema...</p>
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Iniciando DAS Pro...</p>
         </div>
     </div>
 
     <div id="login-screen" class="hidden flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center border">
             <div class="flex justify-center mb-3">
-                <div class="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center relative">
-                    <i class="fas fa-utensils text-2xl text-blue-600"></i>
-                    <i class="fas fa-cog text-sm text-blue-400 absolute bottom-2 right-2"></i>
+                <div class="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center relative">
+                    <i class="fas fa-utensils text-2xl text-orange-600"></i>
+                    <i class="fas fa-cog text-sm text-gray-800 absolute bottom-2 right-2"></i>
                 </div>
             </div>
-            <h2 class="text-3xl font-black text-blue-600 italic uppercase leading-none">DAS Pro</h2>
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] mb-6 mt-1">DASantini</p>
+            <h2 class="text-3xl font-black text-gray-900 italic uppercase leading-none">DAS Pro</h2>
+            <p class="text-[13px] font-black uppercase tracking-[0.1em] mb-6 mt-1">
+                <span class="text-black">DAS</span><span class="text-orange-600">antini</span>
+            </p>
             
             <div class="space-y-4">
-                <input type="email" id="email" placeholder="Email" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-blue-400">
-                <input type="password" id="password" placeholder="Clave" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-blue-400">
-                <button id="login-btn" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700">ENTRAR</button>
+                <input type="email" id="email" placeholder="Email" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-orange-400">
+                <input type="password" id="password" placeholder="Clave" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-orange-400">
+                <button id="login-btn" class="w-full bg-orange-600 text-white p-4 rounded-2xl font-bold shadow-lg hover:bg-orange-700 transition-colors uppercase tracking-widest">Entrar al Sistema</button>
             </div>
         </div>
     </div>
@@ -54,58 +56,62 @@
     <div id="agenda-screen" class="hidden">
         <nav class="bg-white border-b sticky top-0 z-50 flex justify-between items-center px-4 py-2 shadow-sm">
             <div onclick="showSection('home')" class="cursor-pointer flex items-center gap-2">
-                <i class="fas fa-utensils text-blue-600 text-lg"></i>
+                <i class="fas fa-utensils text-orange-600 text-lg"></i>
                 <div>
-                    <h1 class="font-black italic text-blue-600 uppercase tracking-tighter leading-none text-lg">DAS Pro</h1>
-                    <p class="text-[7px] font-bold text-gray-400 uppercase tracking-widest leading-none">DASantini</p>
+                    <h1 class="font-black italic text-gray-900 uppercase tracking-tighter leading-none text-lg">DAS Pro</h1>
+                    <p class="text-[9px] font-black uppercase tracking-wider leading-none">
+                        <span class="text-black">DAS</span><span class="text-orange-600">antini</span>
+                    </p>
                 </div>
             </div>
-            <button id="logout-btn" class="p-2 text-red-400"><i class="fas fa-power-off"></i></button>
+            <button id="logout-btn" class="p-2 text-gray-400 hover:text-red-500"><i class="fas fa-power-off"></i></button>
         </nav>
 
         <main id="section-home" class="p-6 max-w-xl mx-auto space-y-4">
             <div class="text-center py-4">
-                <h2 class="text-2xl font-black text-gray-700 uppercase italic leading-none">¡Bienvenido!</h2>
-                <p class="text-[11px] text-blue-500 font-black uppercase tracking-widest mt-2 mb-3">DASantini</p>
-                <div class="h-[1px] w-12 bg-gray-200 mx-auto mb-3"></div>
+                <h2 class="text-2xl font-black text-gray-800 uppercase italic leading-none">¡Bienvenido!</h2>
+                <p class="text-[13px] font-black uppercase tracking-widest mt-2 mb-3">
+                    <span class="text-black">DAS</span><span class="text-orange-600">antini</span>
+                </p>
+                <div class="h-[2px] w-8 bg-orange-500 mx-auto mb-3"></div>
                 <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Panel de Gestión de Tareas y Propinas</p>
             </div>
             
             <div class="grid grid-cols-1 gap-4">
-                <div onclick="showSection('tasks')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-blue-500 flex items-center gap-5">
-                    <div class="bg-blue-100 w-14 h-14 rounded-2xl flex items-center justify-center text-blue-600 text-2xl"><i class="fas fa-tasks"></i></div>
+                <div onclick="showSection('tasks')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-gray-900 flex items-center gap-5">
+                    <div class="bg-gray-100 w-14 h-14 rounded-2xl flex items-center justify-center text-gray-800 text-2xl"><i class="fas fa-tasks"></i></div>
                     <div><h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Agenda de Tareas</h3><p class="text-xs text-gray-400">Pendientes y avisos.</p></div>
                 </div>
-                <div onclick="showSection('tips')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-green-500 flex items-center gap-5">
-                    <div class="bg-green-100 w-14 h-14 rounded-2xl flex items-center justify-center text-green-600 text-2xl"><i class="fas fa-hand-holding-usd"></i></div>
+                <div onclick="showSection('tips')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-orange-500 flex items-center gap-5">
+                    <div class="bg-orange-50 w-14 h-14 rounded-2xl flex items-center justify-center text-orange-600 text-2xl"><i class="fas fa-hand-holding-usd"></i></div>
                     <div><h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Cierre de Propinas</h3><p class="text-xs text-gray-400">Calcular distribución.</p></div>
                 </div>
-                <div onclick="showSection('history')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-purple-500 flex items-center gap-5">
-                    <div class="bg-purple-100 w-14 h-14 rounded-2xl flex items-center justify-center text-purple-600 text-2xl"><i class="fas fa-history"></i></div>
+                <div onclick="showSection('history')" class="menu-card bg-white p-6 rounded-3xl shadow-sm border border-l-8 border-l-orange-200 flex items-center gap-5">
+                    <div class="bg-orange-50 w-14 h-14 rounded-2xl flex items-center justify-center text-gray-400 text-2xl"><i class="fas fa-history"></i></div>
                     <div><h3 class="font-black text-lg uppercase tracking-tighter text-gray-700">Historial</h3><p class="text-xs text-gray-400">Consultar registros anteriores.</p></div>
                 </div>
             </div>
         </main>
 
         <main id="section-tasks" class="hidden p-4 max-w-xl mx-auto space-y-4">
-            <button onclick="showSection('home')" class="text-[10px] font-bold text-blue-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver al menú</button>
+            <button onclick="showSection('home')" class="text-[10px] font-bold text-orange-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver al menú</button>
             <div class="bg-white p-5 rounded-2xl shadow-sm border space-y-3">
-                <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-gray-50 rounded-xl outline-none border-none ring-1 ring-gray-200 focus:ring-blue-400">
+                <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-gray-50 rounded-xl outline-none border-none ring-1 ring-gray-200 focus:ring-orange-400">
                 <div class="grid grid-cols-2 gap-2">
                     <div><label class="text-[9px] font-bold text-gray-400 uppercase block">Vencimiento</label><input type="date" id="task-date" class="w-full p-2 bg-gray-50 border rounded-xl text-sm"></div>
                     <div><label class="text-[9px] font-bold text-gray-400 uppercase block">Prioridad</label><select id="task-priority" class="w-full p-2 bg-gray-50 border rounded-xl text-sm font-bold"><option value="Baja">BAJA</option><option value="Media">MEDIA</option><option value="Alta">ALTA</option></select></div>
                 </div>
-                <button onclick="saveTask()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold shadow-md">+ AGREGAR TAREA</button>
+                <button onclick="saveTask()" class="w-full bg-gray-900 text-white p-3 rounded-xl font-bold shadow-md uppercase tracking-widest">+ Agregar Tarea</button>
             </div>
-            <div class="relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400 text-xs"></i><input type="text" id="search-tasks" oninput="renderTasks(window.cachedTasks)" placeholder="Buscar tarea..." class="w-full pl-9 p-2 bg-white rounded-xl border text-xs outline-none focus:ring-1 focus:ring-blue-400"></div>
+            <div class="relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400 text-xs"></i><input type="text" id="search-tasks" oninput="renderTasks(window.cachedTasks)" placeholder="Buscar tarea..." class="w-full pl-9 p-2 bg-white rounded-xl border text-xs outline-none focus:ring-1 focus:ring-orange-400"></div>
             <div id="task-list" class="space-y-2"></div>
         </main>
 
         <main id="section-tips" class="hidden p-4 max-w-4xl mx-auto space-y-4">
-            <button onclick="showSection('home')" class="text-[10px] font-bold text-blue-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver al menú</button>
+            <button onclick="showSection('home')" class="text-[10px] font-bold text-orange-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver al menú</button>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border space-y-3">
-                    <h3 class="font-bold text-blue-600 uppercase text-[10px] tracking-widest">Datos del Cierre</h3>
+                    <h3 class="font-bold text-orange-600 uppercase text-[10px] tracking-widest text-center">Datos del Cierre</h3>
                     <div class="grid grid-cols-2 gap-2">
                         <div><label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Propina</label><input type="date" id="date-generated" class="w-full p-2 bg-gray-50 border rounded-xl text-sm"></div>
                         <div><label class="text-[9px] font-bold text-gray-400 uppercase">Fecha Pago</label><input type="date" id="date-paid" class="w-full p-2 bg-gray-50 border rounded-xl text-sm"></div>
@@ -114,14 +120,14 @@
                         <div><label class="text-[9px] font-bold text-gray-400 uppercase">Turno</label><select id="shift" class="w-full p-2 bg-gray-50 border rounded-xl text-sm font-bold"><option value="Mañana">MAÑANA</option><option value="Noche">NOCHE</option><option value="Evento">EVENTO</option></select></div>
                         <div><label class="text-[9px] font-bold text-gray-400 uppercase">¿Quién Pagó?</label><input type="text" id="payer-name" placeholder="Responsable" class="w-full p-2 bg-gray-50 border rounded-xl text-sm"></div>
                     </div>
-                    <div><label class="text-[9px] font-bold text-gray-400 uppercase">Monto Total $</label><input type="number" id="tip-total" oninput="calculate()" onfocus="this.select()" class="w-full p-3 bg-blue-50 border-2 border-blue-100 rounded-xl text-3xl font-black text-blue-700"></div>
+                    <div><label class="text-[9px] font-bold text-gray-400 uppercase">Monto Total $</label><input type="number" id="tip-total" oninput="calculate()" onfocus="this.select()" class="w-full p-3 bg-orange-50 border-2 border-orange-100 rounded-xl text-3xl font-black text-orange-700"></div>
                 </div>
                 <div class="bg-white p-5 rounded-2xl shadow-sm border">
                     <h3 class="font-bold text-gray-400 uppercase text-[10px] tracking-widest mb-4 text-center">Seleccionar Personal</h3>
                     <div id="staff-selector" class="flex flex-wrap gap-2 mb-4 justify-center"></div>
                     <div class="flex gap-2 border-t pt-4">
                         <input type="text" id="new-staff-name" placeholder="Nuevo empleado..." class="flex-grow p-2 border rounded-lg text-xs">
-                        <button onclick="addNewStaff()" class="bg-blue-600 text-white px-4 rounded-lg text-sm font-bold uppercase">+</button>
+                        <button onclick="addNewStaff()" class="bg-orange-600 text-white px-4 rounded-lg text-sm font-bold uppercase">+</button>
                     </div>
                 </div>
             </div>
@@ -133,14 +139,14 @@
                     <tbody id="distribution-table" class="divide-y"></tbody>
                 </table>
                 <div class="p-4 bg-gray-50 text-right flex justify-between items-center border-t">
-                    <div class="text-left"><span class="text-[9px] font-bold text-gray-400 block uppercase">Valor por Hora</span><span id="vhour" class="text-xl font-black text-blue-600">$0.00</span></div>
-                    <button onclick="saveCierre()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-green-700">GUARDAR CIERRE</button>
+                    <div class="text-left"><span class="text-[9px] font-bold text-gray-400 block uppercase">Valor por Hora</span><span id="vhour" class="text-xl font-black text-orange-600">$0.00</span></div>
+                    <button onclick="saveCierre()" class="bg-orange-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-orange-700 uppercase tracking-widest">Guardar Cierre</button>
                 </div>
             </div>
         </main>
 
         <main id="section-history" class="hidden p-4 max-w-4xl mx-auto space-y-4">
-            <button onclick="showSection('home')" class="text-[10px] font-bold text-blue-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver al menú</button>
+            <button onclick="showSection('home')" class="text-[10px] font-bold text-orange-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver al menú</button>
             <div class="flex flex-col gap-2 bg-white p-3 rounded-xl border shadow-sm">
                 <div class="flex justify-between items-center mb-1">
                     <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ordenar por:</span>
@@ -150,7 +156,7 @@
                         <option value="fechaPagado">Fecha Pago</option>
                     </select>
                 </div>
-                <div class="relative"><i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i><input type="text" id="search-history" oninput="renderHistory()" placeholder="Buscar empleado, pagador o turno..." class="w-full pl-9 p-2 bg-gray-50 rounded-lg border text-xs outline-none focus:ring-1 focus:ring-blue-400"></div>
+                <div class="relative"><i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i><input type="text" id="search-history" oninput="renderHistory()" placeholder="Buscar empleado, pagador o turno..." class="w-full pl-9 p-2 bg-gray-50 rounded-lg border text-xs outline-none focus:ring-1 focus:ring-orange-400"></div>
             </div>
             <div id="history-list" class="space-y-3"></div>
         </main>
@@ -240,7 +246,7 @@
             list.innerHTML = filtered.map(t => `
                 <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between priority-${t.priority || 'Baja'}">
                     <div class="flex items-center gap-3">
-                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}', ${t.completed})" class="w-5 h-5">
+                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}', ${t.completed})" class="w-5 h-5 accent-orange-600">
                         <div><p class="font-bold text-sm ${t.completed ? 'task-completed' : ''}">${t.detail}</p>
                         <p class="text-[10px] ${(!t.completed && t.date && t.date < hoy) ? 'vencido' : 'text-gray-400'}">Vence: ${formatDate(t.date)} | Prioridad: ${t.priority || 'Baja'}</p></div>
                     </div>
@@ -279,8 +285,8 @@
             const tableBody = document.getElementById('distribution-table');
             const activeStaff = fullStaffList.filter(s => selectedStaffIds.includes(s.id));
             tableBody.innerHTML = activeStaff.map(s => `<tr><td class="p-4 font-bold text-gray-700">${s.name}</td>
-                <td class="p-4 text-center"><input type="number" step="0.5" value="${hoursMemory[s.id] || 0}" oninput="updateHours('${s.id}', this.value)" onfocus="this.select()" class="hour-input w-20 p-2 border-2 border-blue-100 rounded-xl text-center font-black" data-id="${s.id}" data-name="${s.name}"></td>
-                <td class="p-4 text-right font-black text-blue-600 text-lg" id="res-${s.id}">$0.00</td></tr>`).join('');
+                <td class="p-4 text-center"><input type="number" step="0.5" value="${hoursMemory[s.id] || 0}" oninput="updateHours('${s.id}', this.value)" onfocus="this.select()" class="hour-input w-20 p-2 border-2 border-orange-100 rounded-xl text-center font-black" data-id="${s.id}" data-name="${s.name}"></td>
+                <td class="p-4 text-right font-black text-orange-600 text-lg" id="res-${s.id}">$0.00</td></tr>`).join('');
             calculate();
         };
         window.updateHours = (id, val) => { hoursMemory[id] = val; calculate(); };
@@ -315,7 +321,7 @@
 
         window.loadHistory = async () => {
             const hList = document.getElementById('history-list');
-            hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Cargando historial...</p>";
+            hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Cargando registros...</p>";
             try {
                 const snap = await getDocs(query(collection(db, "cierres"), where("userId", "==", currentUserId)));
                 cachedHistory = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -333,13 +339,13 @@
             }
             if(filtered.length === 0) { hList.innerHTML = "<p class='text-center p-10 text-gray-400 text-xs'>Sin registros.</p>"; return; }
             hList.innerHTML = filtered.map(c => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-l-4 border-l-blue-500">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-l-4 border-l-orange-500">
                     <div class="flex justify-between items-start mb-3">
                         <div><span class="text-[9px] font-bold text-gray-400 block uppercase">FECHA PROPINA</span><span class="font-bold text-sm">${formatDate(c.fechaGenerado)}</span></div>
-                        <div class="text-right"><span class="text-[9px] font-bold text-gray-400 block uppercase">PAGÓ:</span><span class="font-bold text-sm text-blue-600">${c.pagador}</span></div>
+                        <div class="text-right"><span class="text-[9px] font-bold text-gray-400 block uppercase">PAGÓ:</span><span class="font-bold text-sm text-orange-600">${c.pagador}</span></div>
                     </div>
-                    <div class="bg-blue-50 p-3 rounded-xl mb-3 flex justify-between items-center">
-                        <div><span class="text-xs font-bold text-blue-800 uppercase">Total:</span><span class="text-xl font-black text-blue-700 ml-2">$${c.montoTotal}</span></div>
+                    <div class="bg-orange-50 p-3 rounded-xl mb-3 flex justify-between items-center">
+                        <div><span class="text-xs font-bold text-orange-800 uppercase">Total:</span><span class="text-xl font-black text-orange-700 ml-2">$${c.montoTotal}</span></div>
                         <div class="text-[9px] font-bold text-gray-400 uppercase text-right">TURNO: ${c.turno}<br>PAGO: ${formatDate(c.fechaPagado)}</div>
                     </div>
                     <div class="grid grid-cols-1 gap-1 text-[11px] text-gray-600 border-t pt-2">
