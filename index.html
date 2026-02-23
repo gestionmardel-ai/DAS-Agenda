@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAS-PRO | Gestión Integral</title>
+    <title>DAS-PRO | Gestión</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Pantalla de carga para evitar parpadeo */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #f3f4f6; display: flex; align-items: center; justify-content: center; z-index: 9999;
@@ -28,7 +27,7 @@
     <div id="loading-screen">
         <div class="text-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Iniciando DAS-PRO...</p>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Iniciando sistema...</p>
         </div>
     </div>
 
@@ -38,7 +37,7 @@
             <div class="space-y-4">
                 <input type="email" id="email" placeholder="Email" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-blue-400">
                 <input type="password" id="password" placeholder="Clave" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-blue-400">
-                <button id="login-btn" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700">ENTRAR</button>
+                <button id="login-btn" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition-all active:scale-95">ENTRAR</button>
             </div>
         </div>
     </div>
@@ -56,7 +55,7 @@
 
         <main id="section-tasks" class="p-4 max-w-xl mx-auto space-y-4">
             <div class="bg-white p-5 rounded-2xl shadow-sm border space-y-3">
-                <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-gray-50 rounded-xl outline-none border-none ring-1 ring-gray-200">
+                <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-gray-50 rounded-xl outline-none border-none ring-1 ring-gray-200 focus:ring-blue-400">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[9px] font-bold text-gray-400 uppercase block">Vencimiento</label>
@@ -149,7 +148,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc, getDocs, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAffYd8QzcABt6bktN4xSw-XtK1jwJgYQI",
@@ -170,7 +169,205 @@
         let hoursMemory = {};
         let cachedHistory = [];
 
+        // NAVEGACIÓN GLOBAL
         window.showSection = (section) => {
             ['tasks', 'tips', 'history'].forEach(s => {
                 document.getElementById(`section-${s}`).classList.toggle('hidden', s !== section);
-                document.getElementById(`btn-${s}`).classList.toggle('tab-active',
+                document.getElementById(`btn-${s}`).classList.toggle('tab-active', s === section);
+            });
+            if(section === 'history') loadHistory();
+        };
+
+        // GESTIÓN DE ESTADO DE USUARIO
+        onAuthStateChanged(auth, (user) => {
+            const loading = document.getElementById('loading-screen');
+            const login = document.getElementById('login-screen');
+            const agenda = document.getElementById('agenda-screen');
+
+            if (user) {
+                currentUserId = user.uid;
+                login.classList.add('hidden');
+                agenda.classList.remove('hidden');
+                loading.classList.add('hidden');
+
+                document.getElementById('date-generated').valueAsDate = new Date();
+                document.getElementById('task-date').valueAsDate = new Date();
+                
+                // Suscripción Staff
+                onSnapshot(query(collection(db, "staff_list"), where("userId", "==", currentUserId)), (snap) => {
+                    fullStaffList = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    fullStaffList.sort((a, b) => a.name.localeCompare(b.name));
+                    renderStaffSelector();
+                });
+
+                // Suscripción Tareas
+                onSnapshot(query(collection(db, "tasks"), where("userId", "==", currentUserId)), (snap) => {
+                    const tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    tasks.sort((a, b) => (a.date || "") > (b.date || "") ? 1 : -1);
+                    renderTasks(tasks);
+                });
+            } else {
+                agenda.classList.add('hidden');
+                login.classList.remove('hidden');
+                loading.classList.add('hidden');
+            }
+        });
+
+        // FUNCION LOGIN REFORZADA
+        document.getElementById('login-btn').onclick = async () => {
+            const e = document.getElementById('email').value.trim();
+            const p = document.getElementById('password').value.trim();
+            if(!e || !p) return alert("Completa los campos");
+            
+            try {
+                await signInWithEmailAndPassword(auth, e, p);
+            } catch(err) {
+                console.error(err.code);
+                if(err.code === 'auth/invalid-credential') alert("Email o Clave incorrectos");
+                else if(err.code === 'auth/invalid-email') alert("Formato de email no válido");
+                else alert("Error: " + err.message);
+            }
+        };
+
+        document.getElementById('logout-btn').onclick = () => signOut(auth);
+
+        // --- LÓGICA DE TAREAS ---
+        window.renderTasks = (tasks) => {
+            const list = document.getElementById('task-list');
+            const hoy = new Date().toISOString().split('T')[0];
+            list.innerHTML = tasks.map(t => `
+                <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between priority-${t.priority || 'Baja'}">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}', ${t.completed})" class="w-5 h-5 cursor-pointer">
+                        <div>
+                            <p class="font-bold text-sm ${t.completed ? 'task-completed' : ''}">${t.detail}</p>
+                            <p class="text-[10px] ${(!t.completed && t.date && t.date < hoy) ? 'vencido' : 'text-gray-400'}">Vence: ${t.date || '---'} | Prioridad: ${t.priority || 'Baja'}</p>
+                        </div>
+                    </div>
+                    <button onclick="deleteTask('${t.id}')" class="text-gray-300 hover:text-red-500 transition-colors"><i class="fas fa-trash-alt"></i></button>
+                </div>`).join('');
+        };
+
+        window.saveTask = async () => {
+            const detail = document.getElementById('task-input').value;
+            const date = document.getElementById('task-date').value;
+            const priority = document.getElementById('task-priority').value;
+            if(!detail) return;
+            await addDoc(collection(db, "tasks"), { detail, date, priority, completed: false, userId: currentUserId });
+            document.getElementById('task-input').value = '';
+        };
+
+        window.toggleTask = async (id, currentStatus) => { await updateDoc(doc(db, "tasks", id), { completed: !currentStatus }); };
+        window.deleteTask = async (id) => { if(confirm("¿Borrar tarea?")) await deleteDoc(doc(db, "tasks", id)); };
+
+        // --- LÓGICA DE PROPINAS Y STAFF ---
+        window.addNewStaff = async () => {
+            const name = document.getElementById('new-staff-name').value.trim();
+            if(name) await addDoc(collection(db, "staff_list"), { name, userId: currentUserId });
+            document.getElementById('new-staff-name').value = "";
+        };
+
+        window.deleteStaffMember = async (e, id) => { e.stopPropagation(); if(confirm("¿Eliminar empleado?")) await deleteDoc(doc(db, "staff_list", id)); };
+
+        window.renderStaffSelector = () => {
+            const container = document.getElementById('staff-selector');
+            container.innerHTML = fullStaffList.map(s => `
+                <div class="flex items-center border rounded-full pl-3 pr-1 py-1 gap-2 shadow-sm transition-all ${selectedStaffIds.includes(s.id) ? 'pill-selected' : 'bg-white text-gray-500'}">
+                    <span class="text-xs font-bold cursor-pointer select-none" onclick="toggleStaff('${s.id}')">${s.name}</span>
+                    <button onclick="deleteStaffMember(event, '${s.id}')" class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-red-500 hover:text-white text-[10px]">×</button>
+                </div>`).join('');
+            renderDistributionTable();
+        };
+
+        window.toggleStaff = (id) => {
+            selectedStaffIds.includes(id) ? selectedStaffIds = selectedStaffIds.filter(i => i !== id) : selectedStaffIds.push(id);
+            renderStaffSelector();
+        };
+
+        window.renderDistributionTable = () => {
+            const tableBody = document.getElementById('distribution-table');
+            const activeStaff = fullStaffList.filter(s => selectedStaffIds.includes(s.id));
+            tableBody.innerHTML = activeStaff.map(s => `
+                <tr>
+                    <td class="p-4 font-bold text-gray-700">${s.name}</td>
+                    <td class="p-4 text-center">
+                        <input type="number" step="0.5" value="${hoursMemory[s.id] || 0}" oninput="updateHours('${s.id}', this.value)" onfocus="this.select()"
+                        class="hour-input w-20 p-2 border-2 border-blue-100 rounded-xl text-center font-black" data-id="${s.id}" data-name="${s.name}">
+                    </td>
+                    <td class="p-4 text-right font-black text-blue-600 text-lg" id="res-${s.id}">$0.00</td>
+                </tr>`).join('');
+            calculate();
+        };
+
+        window.updateHours = (id, val) => { hoursMemory[id] = val; calculate(); };
+
+        window.calculate = () => {
+            const total = parseFloat(document.getElementById('tip-total').value) || 0;
+            const inputs = document.querySelectorAll('.hour-input');
+            let totalH = 0;
+            inputs.forEach(i => totalH += parseFloat(i.value) || 0);
+            const vh = totalH > 0 ? total / totalH : 0;
+            document.getElementById('vhour').innerText = `$${vh.toFixed(2)}`;
+            inputs.forEach(i => {
+                const id = i.getAttribute('data-id');
+                const monto = (parseFloat(i.value || 0) * vh).toFixed(2);
+                if(document.getElementById(`res-${id}`)) document.getElementById(`res-${id}`).innerText = `$${monto}`;
+            });
+        };
+
+        window.saveCierre = async () => {
+            const total = document.getElementById('tip-total').value;
+            const dGen = document.getElementById('date-generated').value;
+            const dPaid = document.getElementById('date-paid').value;
+            const payer = document.getElementById('payer-name').value;
+            const shift = document.getElementById('shift').value;
+            if(!total || !dGen || !payer) return alert("Faltan datos del cierre");
+            
+            const reps = [];
+            document.querySelectorAll('.hour-input').forEach(i => {
+                reps.push({ nombre: i.getAttribute('data-name'), horas: i.value, cobro: document.getElementById(`res-${i.getAttribute('data-id')}`).innerText });
+            });
+
+            await addDoc(collection(db, "cierres"), {
+                userId: currentUserId, fechaGenerado: dGen, fechaPagado: dPaid,
+                pagador: payer, turno: shift, montoTotal: total, detalles: reps, timestamp: Date.now()
+            });
+            alert("Cierre guardado con éxito"); location.reload();
+        };
+
+        // --- HISTORIAL ---
+        window.loadHistory = async () => {
+            const hList = document.getElementById('history-list');
+            hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Cargando historial...</p>";
+            try {
+                const snap = await getDocs(query(collection(db, "cierres"), where("userId", "==", currentUserId)));
+                cachedHistory = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderHistory();
+            } catch (e) { console.error(e); }
+        };
+
+        window.renderHistory = () => {
+            const hList = document.getElementById('history-list');
+            const sortField = document.getElementById('sort-history').value;
+            const sorted = [...cachedHistory].sort((a, b) => (a[sortField] || "") < (b[sortField] || "") ? 1 : -1);
+            
+            if(sorted.length === 0) { hList.innerHTML = "<p class='text-center p-10 text-gray-400'>No hay cierres guardados.</p>"; return; }
+            
+            hList.innerHTML = sorted.map(c => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-l-4 border-l-blue-500">
+                    <div class="flex justify-between items-start mb-3">
+                        <div><span class="text-[9px] font-bold text-gray-400 block uppercase tracking-tighter">FECHA PROPINA</span><span class="font-bold text-sm">${c.fechaGenerado}</span></div>
+                        <div class="text-right"><span class="text-[9px] font-bold text-gray-400 block uppercase tracking-tighter">PAGADO POR:</span><span class="font-bold text-sm text-blue-600">${c.pagador} (${c.turno})</span></div>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-xl mb-3 flex justify-between items-center">
+                        <div><span class="text-xs font-bold text-blue-800 uppercase">Total:</span><span class="text-xl font-black text-blue-700 ml-2">$${c.montoTotal}</span></div>
+                        <div class="text-[9px] font-bold text-gray-400 uppercase">Pago: ${c.fechaPagado || '---'}</div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-1 text-[11px] text-gray-600 border-t pt-2">
+                        ${c.detalles.map(p => `<div class="flex justify-between"><span>${p.nombre} (${p.horas}hs)</span><span class="font-bold">${p.cobro}</span></div>`).join('')}
+                    </div>
+                </div>`).join('');
+        };
+    </script>
+</body>
+</html>
