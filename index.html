@@ -169,7 +169,14 @@
         let hoursMemory = {};
         let cachedHistory = [];
 
-        // NAVEGACIÓN GLOBAL
+        // FUNCIÓN CLAVE: Formatea AAAA-MM-DD a DD/MM/AAAA
+        const formatDate = (dateStr) => {
+            if (!dateStr) return "---";
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        };
+
         window.showSection = (section) => {
             ['tasks', 'tips', 'history'].forEach(s => {
                 document.getElementById(`section-${s}`).classList.toggle('hidden', s !== section);
@@ -178,29 +185,22 @@
             if(section === 'history') loadHistory();
         };
 
-        // GESTIÓN DE ESTADO DE USUARIO
         onAuthStateChanged(auth, (user) => {
             const loading = document.getElementById('loading-screen');
             const login = document.getElementById('login-screen');
             const agenda = document.getElementById('agenda-screen');
-
             if (user) {
                 currentUserId = user.uid;
                 login.classList.add('hidden');
                 agenda.classList.remove('hidden');
                 loading.classList.add('hidden');
-
                 document.getElementById('date-generated').valueAsDate = new Date();
                 document.getElementById('task-date').valueAsDate = new Date();
-                
-                // Suscripción Staff
                 onSnapshot(query(collection(db, "staff_list"), where("userId", "==", currentUserId)), (snap) => {
                     fullStaffList = snap.docs.map(d => ({id: d.id, ...d.data()}));
                     fullStaffList.sort((a, b) => a.name.localeCompare(b.name));
                     renderStaffSelector();
                 });
-
-                // Suscripción Tareas
                 onSnapshot(query(collection(db, "tasks"), where("userId", "==", currentUserId)), (snap) => {
                     const tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
                     tasks.sort((a, b) => (a.date || "") > (b.date || "") ? 1 : -1);
@@ -213,38 +213,26 @@
             }
         });
 
-        // FUNCION LOGIN REFORZADA
         document.getElementById('login-btn').onclick = async () => {
             const e = document.getElementById('email').value.trim();
             const p = document.getElementById('password').value.trim();
-            if(!e || !p) return alert("Completa los campos");
-            
-            try {
-                await signInWithEmailAndPassword(auth, e, p);
-            } catch(err) {
-                console.error(err.code);
-                if(err.code === 'auth/invalid-credential') alert("Email o Clave incorrectos");
-                else if(err.code === 'auth/invalid-email') alert("Formato de email no válido");
-                else alert("Error: " + err.message);
-            }
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("Credenciales incorrectas"); }
         };
-
         document.getElementById('logout-btn').onclick = () => signOut(auth);
 
-        // --- LÓGICA DE TAREAS ---
         window.renderTasks = (tasks) => {
             const list = document.getElementById('task-list');
             const hoy = new Date().toISOString().split('T')[0];
             list.innerHTML = tasks.map(t => `
                 <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between priority-${t.priority || 'Baja'}">
                     <div class="flex items-center gap-3">
-                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}', ${t.completed})" class="w-5 h-5 cursor-pointer">
+                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}', ${t.completed})" class="w-5 h-5">
                         <div>
                             <p class="font-bold text-sm ${t.completed ? 'task-completed' : ''}">${t.detail}</p>
-                            <p class="text-[10px] ${(!t.completed && t.date && t.date < hoy) ? 'vencido' : 'text-gray-400'}">Vence: ${t.date || '---'} | Prioridad: ${t.priority || 'Baja'}</p>
+                            <p class="text-[10px] ${(!t.completed && t.date && t.date < hoy) ? 'vencido' : 'text-gray-400'}">Vence: ${formatDate(t.date)} | Prioridad: ${t.priority || 'Baja'}</p>
                         </div>
                     </div>
-                    <button onclick="deleteTask('${t.id}')" class="text-gray-300 hover:text-red-500 transition-colors"><i class="fas fa-trash-alt"></i></button>
+                    <button onclick="deleteTask('${t.id}')" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
                 </div>`).join('');
         };
 
@@ -256,19 +244,15 @@
             await addDoc(collection(db, "tasks"), { detail, date, priority, completed: false, userId: currentUserId });
             document.getElementById('task-input').value = '';
         };
-
         window.toggleTask = async (id, currentStatus) => { await updateDoc(doc(db, "tasks", id), { completed: !currentStatus }); };
-        window.deleteTask = async (id) => { if(confirm("¿Borrar tarea?")) await deleteDoc(doc(db, "tasks", id)); };
+        window.deleteTask = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "tasks", id)); };
 
-        // --- LÓGICA DE PROPINAS Y STAFF ---
         window.addNewStaff = async () => {
             const name = document.getElementById('new-staff-name').value.trim();
             if(name) await addDoc(collection(db, "staff_list"), { name, userId: currentUserId });
             document.getElementById('new-staff-name').value = "";
         };
-
-        window.deleteStaffMember = async (e, id) => { e.stopPropagation(); if(confirm("¿Eliminar empleado?")) await deleteDoc(doc(db, "staff_list", id)); };
-
+        window.deleteStaffMember = async (e, id) => { e.stopPropagation(); if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "staff_list", id)); };
         window.renderStaffSelector = () => {
             const container = document.getElementById('staff-selector');
             container.innerHTML = fullStaffList.map(s => `
@@ -278,12 +262,10 @@
                 </div>`).join('');
             renderDistributionTable();
         };
-
         window.toggleStaff = (id) => {
             selectedStaffIds.includes(id) ? selectedStaffIds = selectedStaffIds.filter(i => i !== id) : selectedStaffIds.push(id);
             renderStaffSelector();
         };
-
         window.renderDistributionTable = () => {
             const tableBody = document.getElementById('distribution-table');
             const activeStaff = fullStaffList.filter(s => selectedStaffIds.includes(s.id));
@@ -298,9 +280,7 @@
                 </tr>`).join('');
             calculate();
         };
-
         window.updateHours = (id, val) => { hoursMemory[id] = val; calculate(); };
-
         window.calculate = () => {
             const total = parseFloat(document.getElementById('tip-total').value) || 0;
             const inputs = document.querySelectorAll('.hour-input');
@@ -314,31 +294,27 @@
                 if(document.getElementById(`res-${id}`)) document.getElementById(`res-${id}`).innerText = `$${monto}`;
             });
         };
-
         window.saveCierre = async () => {
             const total = document.getElementById('tip-total').value;
             const dGen = document.getElementById('date-generated').value;
             const dPaid = document.getElementById('date-paid').value;
             const payer = document.getElementById('payer-name').value;
             const shift = document.getElementById('shift').value;
-            if(!total || !dGen || !payer) return alert("Faltan datos del cierre");
-            
+            if(!total || !dGen || !payer) return alert("Faltan datos");
             const reps = [];
             document.querySelectorAll('.hour-input').forEach(i => {
                 reps.push({ nombre: i.getAttribute('data-name'), horas: i.value, cobro: document.getElementById(`res-${i.getAttribute('data-id')}`).innerText });
             });
-
             await addDoc(collection(db, "cierres"), {
                 userId: currentUserId, fechaGenerado: dGen, fechaPagado: dPaid,
                 pagador: payer, turno: shift, montoTotal: total, detalles: reps, timestamp: Date.now()
             });
-            alert("Cierre guardado con éxito"); location.reload();
+            alert("¡Guardado!"); location.reload();
         };
 
-        // --- HISTORIAL ---
         window.loadHistory = async () => {
             const hList = document.getElementById('history-list');
-            hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Cargando historial...</p>";
+            hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Cargando...</p>";
             try {
                 const snap = await getDocs(query(collection(db, "cierres"), where("userId", "==", currentUserId)));
                 cachedHistory = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -350,18 +326,16 @@
             const hList = document.getElementById('history-list');
             const sortField = document.getElementById('sort-history').value;
             const sorted = [...cachedHistory].sort((a, b) => (a[sortField] || "") < (b[sortField] || "") ? 1 : -1);
-            
-            if(sorted.length === 0) { hList.innerHTML = "<p class='text-center p-10 text-gray-400'>No hay cierres guardados.</p>"; return; }
-            
+            if(sorted.length === 0) { hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Sin datos.</p>"; return; }
             hList.innerHTML = sorted.map(c => `
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-l-4 border-l-blue-500">
                     <div class="flex justify-between items-start mb-3">
-                        <div><span class="text-[9px] font-bold text-gray-400 block uppercase tracking-tighter">FECHA PROPINA</span><span class="font-bold text-sm">${c.fechaGenerado}</span></div>
+                        <div><span class="text-[9px] font-bold text-gray-400 block uppercase tracking-tighter">FECHA PROPINA</span><span class="font-bold text-sm">${formatDate(c.fechaGenerado)}</span></div>
                         <div class="text-right"><span class="text-[9px] font-bold text-gray-400 block uppercase tracking-tighter">PAGADO POR:</span><span class="font-bold text-sm text-blue-600">${c.pagador} (${c.turno})</span></div>
                     </div>
                     <div class="bg-blue-50 p-3 rounded-xl mb-3 flex justify-between items-center">
                         <div><span class="text-xs font-bold text-blue-800 uppercase">Total:</span><span class="text-xl font-black text-blue-700 ml-2">$${c.montoTotal}</span></div>
-                        <div class="text-[9px] font-bold text-gray-400 uppercase">Pago: ${c.fechaPagado || '---'}</div>
+                        <div class="text-[9px] font-bold text-gray-400 uppercase">Pago: ${formatDate(c.fechaPagado)}</div>
                     </div>
                     <div class="grid grid-cols-1 gap-1 text-[11px] text-gray-600 border-t pt-2">
                         ${c.detalles.map(p => `<div class="flex justify-between"><span>${p.nombre} (${p.horas}hs)</span><span class="font-bold">${p.cobro}</span></div>`).join('')}
