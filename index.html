@@ -2,349 +2,157 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAS Pro | DASantini</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gestión de Propinas Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Courier New', Courier, monospace; }
-        #loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #f3f4f6; display: flex; align-items: center; justify-content: center; z-index: 9999;
-        }
-        .hidden { display: none !important; }
-        .hour-input:focus { background-color: #fff7ed; outline: none; border-color: #ea580c; }
-        .pill-selected { background-color: #ea580c !important; color: #ffffff !important; border-color: #c2410c !important; }
-        .task-completed { text-decoration: line-through; opacity: 0.6; }
-        .priority-Alta { border-left: 5px solid #ef4444 !important; }
-        .priority-Media { border-left: 5px solid #f59e0b !important; }
-        .priority-Baja { border-left: 5px solid #10b981 !important; }
-        .brand-text { font-weight: 900; letter-spacing: -1px; }
-        .brand-sub { color: #ea580c; font-weight: bold; }
-        .highlight { background-color: #ffedd5; font-weight: bold; padding: 0 2px; border-radius: 4px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #070b14; color: #f1f5f9; }
+        .card-empleado { background: #111827; border: 1px solid #1e293b; transition: all 0.2s; }
+        .card-empleado.selected { border-color: #3b82f6; background: #1e293b; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800">
+<body class="p-4">
 
-    <div id="loading-screen">
-        <div class="text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
-            <p class="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Sincronizando DASantini...</p>
+    <div class="max-w-md mx-auto space-y-6">
+        <header class="text-center">
+            <h1 class="text-3xl font-black italic">SANTINI</h1>
+            <p class="text-sky-400 text-xs font-bold tracking-widest uppercase">Sistema de Propinas</p>
+        </header>
+
+        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
+            <label class="block text-sky-400 text-[10px] font-black uppercase mb-2">Total Propinas del Turno</label>
+            <input type="number" id="monto-total" placeholder="0.00" oninput="calcular()" 
+                class="w-full bg-transparent text-4xl font-black outline-none border-b-2 border-slate-700 focus:border-sky-500 transition-colors">
         </div>
-    </div>
 
-    <div id="login-screen" class="hidden flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm text-center border">
-            <h2 class="text-3xl font-black text-gray-900 italic leading-none mb-1">DAS Pro</h2>
-            <p class="text-xl brand-text mb-6">
-                <span class="text-black uppercase">DAS</span><span class="brand-sub">antini</span>
-            </p>
-            <div class="space-y-4">
-                <input type="email" id="email" placeholder="Email" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-orange-400 font-bold">
-                <input type="password" id="password" placeholder="Clave" class="w-full p-4 bg-gray-50 rounded-2xl border outline-none focus:ring-2 focus:ring-orange-400 font-bold">
-                <button id="login-btn" class="w-full bg-orange-600 text-white p-4 rounded-2xl font-bold uppercase tracking-widest">Entrar</button>
+        <div class="space-y-3">
+            <h2 class="text-xs font-black uppercase text-slate-500 px-2">Personal en Turno (Toca para activar y poner horas)</h2>
+            <div id="lista-personal" class="grid grid-cols-2 gap-2">
+                </div>
+        </div>
+
+        <div class="bg-white text-slate-900 rounded-3xl p-6 shadow-2xl">
+            <h3 class="text-[10px] font-black uppercase mb-4 text-slate-400">Distribución por Horas</h3>
+            <div id="tabla-resultados" class="space-y-4">
+                </div>
+            <hr class="my-4 border-slate-100">
+            <div class="flex justify-between items-center font-black">
+                <span class="text-xs uppercase">Total a Repartir:</span>
+                <span id="display-total" class="text-2xl text-sky-600">$ 0</span>
             </div>
         </div>
+
+        <button onclick="generarReporte()" class="w-full bg-sky-500 text-slate-900 p-4 rounded-2xl font-black uppercase shadow-lg active:scale-95 transition-transform">
+            Generar Reporte y Limpiar
+        </button>
     </div>
 
-    <div id="agenda-screen" class="hidden">
-        <nav class="bg-white border-b sticky top-0 z-50 flex justify-between items-center px-4 py-2 shadow-sm">
-            <div onclick="showSection('home')" class="cursor-pointer flex items-center gap-2">
-                <i class="fas fa-utensils text-orange-600"></i>
-                <div>
-                    <h1 class="font-black italic text-gray-900 leading-none text-lg">DAS Pro</h1>
-                    <p class="text-xs brand-text">
-                        <span class="text-black uppercase">DAS</span><span class="brand-sub">antini</span>
-                    </p>
-                </div>
-            </div>
-            <button id="logout-btn" class="p-2 text-gray-400 hover:text-red-500"><i class="fas fa-power-off"></i></button>
-        </nav>
+    <script>
+        // LISTADO DE PERSONAL - Podés agregar o quitar acá
+        const staff = ["MARIA", "ANA", "CARLOS", "JUAN", "BELEN", "ZULMA", "DANIEL", "ROSA"];
+        
+        let seleccionados = [];
 
-        <main id="section-home" class="p-6 max-w-xl mx-auto space-y-4">
-            <div class="text-center py-4">
-                <p class="text-lg brand-text mt-2 mb-3">
-                    <span class="text-black uppercase">DAS</span><span class="brand-sub">antini</span>
-                </p>
-                <div class="h-[2px] w-8 bg-orange-500 mx-auto"></div>
-            </div>
-            <div class="grid grid-cols-1 gap-4">
-                <div onclick="showSection('tasks')" class="bg-white p-6 rounded-3xl shadow-sm border-l-8 border-l-black flex items-center gap-5 cursor-pointer">
-                    <i class="fas fa-tasks text-2xl"></i>
-                    <div><h3 class="font-black text-lg">Agenda</h3><p class="text-xs text-gray-400">Tareas pendientes.</p></div>
-                </div>
-                <div onclick="showSection('tips')" class="bg-white p-6 rounded-3xl shadow-sm border-l-8 border-l-orange-500 flex items-center gap-5 cursor-pointer">
-                    <i class="fas fa-hand-holding-usd text-orange-600 text-2xl"></i>
-                    <div><h3 class="font-black text-lg">Propinas</h3><p class="text-xs text-gray-400">Cierre del día.</p></div>
-                </div>
-                <div onclick="showSection('history')" class="bg-white p-6 rounded-3xl shadow-sm border-l-8 border-l-gray-300 flex items-center gap-5 cursor-pointer">
-                    <i class="fas fa-history text-gray-400 text-2xl"></i>
-                    <div><h3 class="font-black text-lg">Historial</h3><p class="text-xs text-gray-400">Consultas y filtros.</p></div>
-                </div>
-            </div>
-        </main>
-
-        <main id="section-tasks" class="hidden p-4 max-w-xl mx-auto space-y-4">
-            <button onclick="showSection('home')" class="text-xs font-bold text-orange-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver</button>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border space-y-3">
-                <input type="text" id="task-input" placeholder="¿Qué hay que hacer?" class="w-full p-3 bg-gray-50 rounded-xl border-2 border-gray-100 outline-none font-bold">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="date" id="task-date" class="p-2 bg-gray-50 border rounded-xl text-sm font-bold">
-                    <select id="task-priority" class="p-2 bg-gray-50 border rounded-xl text-sm font-bold">
-                        <option value="Baja">Baja</option><option value="Media">Media</option><option value="Alta">Alta</option>
-                    </select>
-                </div>
-                <button onclick="saveTask()" class="w-full bg-black text-white p-3 rounded-xl font-bold uppercase tracking-widest">+ Guardar</button>
-            </div>
-            <div id="task-list" class="space-y-2"></div>
-        </main>
-
-        <main id="section-tips" class="hidden p-4 max-w-4xl mx-auto space-y-4">
-            <button onclick="showSection('home')" class="text-xs font-bold text-orange-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver</button>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border space-y-3">
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="text-[10px] font-bold text-gray-400">FECHA PROPINA</label><input type="date" id="date-generated" class="w-full p-2 border rounded-xl font-bold text-sm"></div>
-                        <div><label class="text-[10px] font-bold text-gray-400">FECHA PAGO</label><input type="date" id="date-paid" class="w-full p-2 border rounded-xl font-bold text-sm"></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <select id="shift" class="p-2 border rounded-xl font-bold text-sm"><option value="Mañana">Mañana</option><option value="Noche">Noche</option><option value="Evento">Evento</option></select>
-                        <input type="text" id="payer-name" placeholder="Quién paga" class="p-2 border rounded-xl font-bold text-sm">
-                    </div>
-                    <input type="number" id="tip-total" oninput="calculate()" placeholder="Total $" class="w-full p-3 bg-orange-50 border-2 border-orange-200 rounded-xl text-3xl font-black text-orange-700">
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border">
-                    <div id="staff-selector" class="flex flex-wrap gap-2 mb-4 justify-center"></div>
-                    <div class="flex gap-2"><input type="text" id="new-staff-name" placeholder="Nuevo..." class="flex-grow p-2 border rounded-lg text-xs font-bold"><button onclick="addNewStaff()" class="bg-black text-white px-4 rounded-lg">+</button></div>
-                </div>
-            </div>
-            <div class="bg-white rounded-2xl border overflow-hidden">
-                <table class="w-full text-left"><tbody id="distribution-table" class="divide-y"></tbody></table>
-                <div class="p-4 bg-gray-50 flex justify-between items-center">
-                    <span id="vhour" class="text-xl font-black text-orange-600">$0.00 /h</span>
-                    <button onclick="saveCierre()" class="bg-orange-600 text-white px-8 py-3 rounded-xl font-bold uppercase text-xs">Finalizar Cierre</button>
-                </div>
-            </div>
-        </main>
-
-        <main id="section-history" class="hidden p-4 max-w-4xl mx-auto space-y-4">
-            <button onclick="showSection('home')" class="text-xs font-bold text-orange-600 uppercase mb-2"><i class="fas fa-arrow-left"></i> Volver</button>
-            <div class="bg-white p-4 rounded-xl border shadow-sm space-y-3">
-                <div class="relative">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    <input type="text" id="search-history" oninput="renderHistory()" placeholder="Buscar empleado o pagador..." class="w-full pl-10 p-2 bg-gray-50 rounded-lg border text-xs font-bold outline-none focus:ring-1 focus:ring-orange-400">
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div><label class="text-[9px] font-bold text-gray-400 block uppercase">Filtro Propina</label><input type="date" id="filter-date-prop" onchange="renderHistory()" class="w-full p-1 border rounded text-[10px] font-bold"></div>
-                    <div><label class="text-[9px] font-bold text-gray-400 block uppercase">Filtro Pago</label><input type="date" id="filter-date-pago" onchange="renderHistory()" class="w-full p-1 border rounded text-[10px] font-bold"></div>
-                    <div><label class="text-[9px] font-bold text-gray-400 block uppercase">Turno</label><select id="filter-shift" onchange="renderHistory()" class="w-full p-1 border rounded text-[10px] font-bold"><option value="Todos">Todos</option><option value="Mañana">Mañana</option><option value="Noche">Noche</option><option value="Evento">Evento</option></select></div>
-                    <div class="flex items-end"><button onclick="clearFilters()" class="w-full p-1 bg-gray-100 text-[9px] font-bold uppercase rounded border">Limpiar</button></div>
-                </div>
-            </div>
-            <div id="history-list" class="space-y-4"></div>
-        </main>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAffYd8QzcABt6bktN4xSw-XtK1jwJgYQI",
-            authDomain: "das-agenda.firebaseapp.com",
-            projectId: "das-agenda",
-            storageBucket: "das-agenda.firebasestorage.app",
-            messagingSenderId: "995103851313",
-            appId: "1:995103851313:web:39a19797ab209439fde610"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        let currentUserId = null, fullStaffList = [], selectedStaffIds = [], hoursMemory = {}, cachedHistory = [];
-        window.cachedTasks = [];
-
-        const formatDate = (dateStr) => {
-            if (!dateStr) return "---";
-            const parts = dateStr.split('-');
-            return parts.length !== 3 ? dateStr : `${parts[2]}/${parts[1]}/${parts[0]}`;
-        };
-
-        window.showSection = (section) => {
-            ['home', 'tasks', 'tips', 'history'].forEach(s => {
-                const el = document.getElementById(`section-${s}`);
-                if(el) el.classList.toggle('hidden', s !== section);
+        function renderizarPersonal() {
+            const container = document.getElementById('lista-personal');
+            container.innerHTML = "";
+            
+            // 1. ORDENAR ALFABÉTICAMENTE
+            staff.sort().forEach(nombre => {
+                const isSel = seleccionados.find(s => s.nombre === nombre);
+                container.innerHTML += `
+                    <button onclick="toggleEmpleado('${nombre}')" 
+                        class="card-empleado p-4 rounded-2xl text-left font-bold ${isSel ? 'selected ring-2 ring-sky-500' : 'opacity-50'}">
+                        <div class="text-xs text-slate-500 font-black">${nombre}</div>
+                        <div class="text-sm ${isSel ? 'text-sky-400' : 'text-white'}">${isSel ? isSel.horas + ' hs' : 'Inactivo'}</div>
+                    </button>
+                `;
             });
-            if(section === 'history') loadHistory();
-        };
+        }
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUserId = user.uid;
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('agenda-screen').classList.remove('hidden');
-                document.getElementById('loading-screen').classList.add('hidden');
-                onSnapshot(query(collection(db, "staff_list"), where("userId", "==", currentUserId)), (snap) => {
-                    fullStaffList = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                    renderStaffSelector();
-                });
-                onSnapshot(query(collection(db, "tasks"), where("userId", "==", currentUserId)), (snap) => {
-                    window.cachedTasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                    renderTasks(window.cachedTasks);
-                });
+        function toggleEmpleado(nombre) {
+            const index = seleccionados.findIndex(s => s.nombre === nombre);
+            
+            if (index > -1) {
+                // Si ya está, lo sacamos
+                seleccionados.splice(index, 1);
             } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('loading-screen').classList.add('hidden');
+                // Si no está, preguntamos las horas
+                const horas = prompt(`¿Cuántas horas trabajó ${nombre}?`, "8");
+                if (horas !== null && horas > 0) {
+                    seleccionados.push({ nombre: nombre, horas: parseFloat(horas) });
+                }
             }
-        });
+            
+            // 2. RE-ORDENAR SELECCIONADOS ALFABÉTICAMENTE para la tabla
+            seleccionados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            
+            renderizarPersonal();
+            calcular();
+        }
 
-        // Autenticación básica
-        document.getElementById('login-btn').onclick = async () => {
-            const e = document.getElementById('email').value, p = document.getElementById('password').value;
-            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("Error de acceso"); }
-        };
-        document.getElementById('logout-btn').onclick = () => signOut(auth);
+        function calcular() {
+            const total = parseFloat(document.getElementById('monto-total').value) || 0;
+            const resContainer = document.getElementById('tabla-resultados');
+            const totalHoras = seleccionados.reduce((sum, s) => sum + s.horas, 0);
+            
+            document.getElementById('display-total').innerText = `$ ${total.toLocaleString()}`;
+            resContainer.innerHTML = "";
 
-        // Tareas
-        window.renderTasks = (tasks) => {
-            const list = document.getElementById('task-list');
-            list.innerHTML = tasks.sort((a,b) => a.completed - b.completed).map(t => `
-                <div class="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between priority-${t.priority}">
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}', ${t.completed})" class="w-5 h-5 accent-orange-600">
-                        <div><p class="font-bold text-sm ${t.completed ? 'task-completed' : ''}">${t.detail}</p>
-                        <p class="text-[9px] text-gray-400 font-bold">${formatDate(t.date)}</p></div>
-                    </div>
-                    <button onclick="deleteTask('${t.id}')" class="text-gray-200"><i class="fas fa-trash"></i></button>
-                </div>`).join('');
-        };
-        window.saveTask = async () => {
-            const detail = document.getElementById('task-input').value, date = document.getElementById('task-date').value, prio = document.getElementById('task-priority').value;
-            if(!detail) return;
-            await addDoc(collection(db, "tasks"), { detail, date, priority: prio, completed: false, userId: currentUserId });
-            document.getElementById('task-input').value = '';
-        };
-        window.toggleTask = async (id, status) => { await updateDoc(doc(db, "tasks", id), { completed: !status }); };
-        window.deleteTask = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "tasks", id)); };
-
-        // Propinas
-        window.addNewStaff = async () => {
-            const name = document.getElementById('new-staff-name').value.trim();
-            if(name) await addDoc(collection(db, "staff_list"), { name, userId: currentUserId });
-            document.getElementById('new-staff-name').value = "";
-        };
-        window.renderStaffSelector = () => {
-            const container = document.getElementById('staff-selector');
-            container.innerHTML = fullStaffList.map(s => `<div class="flex items-center border rounded-full px-3 py-1 gap-2 ${selectedStaffIds.includes(s.id) ? 'pill-selected' : 'bg-white'}">
-                <span class="text-xs font-bold cursor-pointer" onclick="toggleStaff('${s.id}')">${s.name}</span>
-                <button onclick="deleteStaffMember(event, '${s.id}')" class="text-[10px]">×</button></div>`).join('');
-            renderDistributionTable();
-        };
-        window.toggleStaff = (id) => {
-            selectedStaffIds.includes(id) ? selectedStaffIds = selectedStaffIds.filter(i => i !== id) : selectedStaffIds.push(id);
-            renderStaffSelector();
-        };
-        window.renderDistributionTable = () => {
-            const tableBody = document.getElementById('distribution-table');
-            const activeStaff = fullStaffList.filter(s => selectedStaffIds.includes(s.id));
-            tableBody.innerHTML = activeStaff.map(s => `<tr><td class="p-4 font-bold">${s.name}</td>
-                <td class="p-4 text-center"><input type="number" step="0.5" value="${hoursMemory[s.id] || 0}" oninput="updateHours('${s.id}', this.value)" class="hour-input w-20 p-2 border-2 border-orange-100 rounded-xl text-center font-black" data-id="${s.id}" data-name="${s.name}"></td>
-                <td class="p-4 text-right font-black text-orange-600" id="res-${s.id}">$0.00</td></tr>`).join('');
-            calculate();
-        };
-        window.updateHours = (id, val) => { hoursMemory[id] = val; calculate(); };
-        window.calculate = () => {
-            const total = parseFloat(document.getElementById('tip-total').value) || 0;
-            const inputs = document.querySelectorAll('.hour-input');
-            let totalH = 0; inputs.forEach(i => totalH += parseFloat(i.value) || 0);
-            const vh = totalH > 0 ? total / totalH : 0;
-            document.getElementById('vhour').innerText = `$${vh.toFixed(2)}/h`;
-            inputs.forEach(i => {
-                const id = i.getAttribute('data-id');
-                const resEl = document.getElementById(`res-${id}`);
-                if(resEl) resEl.innerText = `$${(parseFloat(i.value || 0) * vh).toFixed(2)}`;
-            });
-        };
-        window.saveCierre = async () => {
-            const total = document.getElementById('tip-total').value, dGen = document.getElementById('date-generated').value, dPaid = document.getElementById('date-paid').value, payer = document.getElementById('payer-name').value, shift = document.getElementById('shift').value;
-            if(!total || !dGen || !payer) return alert("Faltan datos");
-            const reps = [];
-            document.querySelectorAll('.hour-input').forEach(i => {
-                reps.push({ nombre: i.getAttribute('data-name'), horas: i.value, cobro: document.getElementById(`res-${i.getAttribute('data-id')}`).innerText });
-            });
-            await addDoc(collection(db, "cierres"), { userId: currentUserId, fechaGenerado: dGen, fechaPagado: dPaid, pagador: payer, turno: shift, montoTotal: total, detalles: reps, timestamp: Date.now() });
-            alert("¡Guardado!"); location.reload();
-        };
-
-        // Historial Detallado con Filtros y Highlight
-        window.loadHistory = async () => {
-            const hList = document.getElementById('history-list');
-            hList.innerHTML = "<p class='text-center p-10 text-gray-400'>Cargando...</p>";
-            const snap = await getDocs(query(collection(db, "cierres"), where("userId", "==", currentUserId)));
-            cachedHistory = snap.docs.map(d => ({id: d.id, ...d.data()}));
-            renderHistory();
-        };
-
-        window.clearFilters = () => {
-            document.getElementById('search-history').value = '';
-            document.getElementById('filter-date-prop').value = '';
-            document.getElementById('filter-date-pago').value = '';
-            document.getElementById('filter-shift').value = 'Todos';
-            renderHistory();
-        };
-
-        window.renderHistory = () => {
-            const hList = document.getElementById('history-list');
-            const search = document.getElementById('search-history').value.toLowerCase();
-            const fDateProp = document.getElementById('filter-date-prop').value;
-            const fDatePago = document.getElementById('filter-date-pago').value;
-            const fShift = document.getElementById('filter-shift').value;
-
-            let filtered = [...cachedHistory].sort((a, b) => b.timestamp - a.timestamp);
-
-            if(search) {
-                filtered = filtered.filter(c => c.pagador.toLowerCase().includes(search) || c.detalles.some(d => d.nombre.toLowerCase().includes(search)));
+            if (seleccionados.length === 0 || total === 0) {
+                resContainer.innerHTML = `<p class="text-slate-400 text-center py-4 font-bold italic">Esperando datos...</p>`;
+                return;
             }
-            if(fDateProp) filtered = filtered.filter(c => c.fechaGenerado === fDateProp);
-            if(fDatePago) filtered = filtered.filter(c => c.fechaPagado === fDatePago);
-            if(fShift !== 'Todos') filtered = filtered.filter(c => c.turno === fShift);
 
-            if(filtered.length === 0) { hList.innerHTML = "<p class='text-center p-10 text-gray-400 text-xs'>Sin resultados.</p>"; return; }
+            const valorHora = total / totalHoras;
 
-            hList.innerHTML = filtered.map(c => {
-                const highlightPagador = search && c.pagador.toLowerCase().includes(search) ? `<span class="highlight">${c.pagador}</span>` : c.pagador;
-                
-                return `
-                <div class="bg-white p-5 rounded-2xl border-l-8 border-l-black shadow-sm">
-                    <div class="flex justify-between items-start mb-2">
+            seleccionados.forEach(emp => {
+                const pago = emp.horas * valorHora;
+                resContainer.innerHTML += `
+                    <div class="flex justify-between items-center border-b border-slate-50 pb-2">
                         <div>
-                            <span class="text-[9px] font-bold text-gray-400 block uppercase">FECHA PROPINA: ${formatDate(c.fechaGenerado)}</span>
-                            <span class="text-[9px] font-bold text-gray-400 block uppercase">FECHA PAGO: ${formatDate(c.fechaPagado)}</span>
+                            <div class="font-black text-slate-800">${emp.nombre}</div>
+                            <div class="text-[9px] text-slate-400 uppercase font-bold">${emp.horas} horas trabajadas</div>
                         </div>
-                        <button onclick="deleteCierre('${c.id}')" class="text-gray-300"><i class="fas fa-trash"></i></button>
+                        <div class="text-lg font-black text-sky-600">$ ${pago.toFixed(2)}</div>
                     </div>
-                    <div class="bg-orange-50 p-3 rounded-xl mb-3 border border-orange-100">
-                        <div class="flex justify-between items-center">
-                            <div><span class="text-[10px] font-bold text-orange-800 uppercase">PAGÓ: ${highlightPagador}</span><div class="text-xl font-black text-orange-700">$${c.montoTotal}</div></div>
-                            <div class="text-right"><span class="text-[10px] font-bold text-gray-500 uppercase block">TURNO</span><span class="text-xs font-black text-gray-700 uppercase">${c.turno || 'S/D'}</span></div>
-                        </div>
-                    </div>
-                    <div class="space-y-1 border-t pt-2">
-                        ${c.detalles.map(p => {
-                            const isSelected = search && p.nombre.toLowerCase().includes(search);
-                            return `<div class="flex justify-between text-xs ${isSelected ? 'highlight' : ''}">
-                                <span>${p.nombre} (${p.horas}h)</span>
-                                <span class="font-black">${p.cobro}</span>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>`;
-            }).join('');
-        };
+                `;
+            });
+        }
 
-        window.deleteCierre = async (id) => { if(confirm("¿Borrar definitivamente?")) { await deleteDoc(doc(db, "cierres", id)); loadHistory(); } };
-        window.deleteStaffMember = async (e, id) => { e.stopPropagation(); if(confirm("¿Eliminar empleado?")) await deleteDoc(doc(db, "staff_list", id)); };
+        function generarReporte() {
+            if (seleccionados.length === 0) return alert("No hay personal seleccionado");
+            
+            const total = document.getElementById('monto-total').value;
+            const ahora = new Date().toLocaleString('es-AR');
+            
+            let txt = `REPORTE DE PROPINAS - SANTINI\n`;
+            txt += `Fecha: ${ahora}\n`;
+            txt += `Monto Total: $${total}\n`;
+            txt += `--------------------------------\n`;
+            
+            seleccionados.forEach(emp => {
+                const valorHora = total / seleccionados.reduce((sum, s) => sum + s.horas, 0);
+                txt += `${emp.nombre} | ${emp.horas}hs | Recibe: $${(emp.horas * valorHora).toFixed(2)}\n`;
+            });
+
+            const blob = new Blob([txt], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Propinas_${ahora.split(',')[0].replace(/\//g, '-')}.txt`;
+            link.click();
+
+            // Limpiar todo
+            seleccionados = [];
+            document.getElementById('monto-total').value = "";
+            renderizarPersonal();
+            calcular();
+        }
+
+        // Inicio
+        renderizarPersonal();
     </script>
 </body>
 </html>
