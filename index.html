@@ -7,119 +7,176 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #070b14; color: #f1f5f9; margin: 0; overflow-x: hidden; }
-        .tab-btn.active { border-bottom: 4px solid #3b82f6; color: #3b82f6; }
-        input, select { background: #111827; border: 1px solid #1e293b; color: white; padding: 12px; border-radius: 12px; outline: none; width: 100%; }
+        /* Aplicamos fuente tipo Courier a toda la app */
+        body { 
+            font-family: 'Courier New', Courier, monospace; 
+            background-color: #000000; 
+            color: #ffffff; 
+            margin: 0; 
+            overflow-x: hidden; 
+        }
         
-        /* Reporte Full Screen */
-        #pagina-reporte { background: white; color: #0f172a; min-height: 100vh; display: none; padding: 20px; z-index: 100; position: fixed; inset: 0; overflow-y: auto; }
+        .tab-btn { border-bottom: 4px solid transparent; color: #666; transition: all 0.3s; }
+        .tab-btn.active { border-bottom: 4px solid #f97316; color: #f97316; font-weight: 900; } /* Naranja */
+        
+        input, select { 
+            background: #111111; 
+            border: 1px solid #333333; 
+            color: white; 
+            padding: 14px; 
+            border-radius: 8px; 
+            outline: none; 
+            width: 100%; 
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+        input:focus, select:focus { border-color: #f97316; }
+
+        /* Reporte Full Screen (Blanco, Negro y Naranja) */
+        #pagina-reporte { 
+            background: white; 
+            color: #000000; 
+            min-height: 100vh; 
+            display: none; 
+            padding: 20px; 
+            z-index: 100; 
+            position: fixed; 
+            inset: 0; 
+            overflow-y: auto; 
+            font-family: 'Courier New', Courier, monospace;
+        }
         
         @media print {
-            .no-print { display: none; }
+            .no-print { display: none !important; }
             #pagina-reporte { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
         }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="fixed inset-0 z-[60] bg-[#070b14] flex items-center justify-center p-6">
-        <div class="bg-[#111827] p-8 w-full max-w-sm text-center border border-slate-800 rounded-3xl shadow-2xl">
-            <h1 class="text-3xl font-black italic mb-2 tracking-tighter">SANTINI</h1>
-            <p class="text-sky-400 font-bold text-[10px] mb-8 uppercase tracking-[0.3em]">Gestión Pro</p>
+    <div id="login-screen" class="fixed inset-0 z-[60] bg-black flex items-center justify-center p-6">
+        <div class="bg-[#111111] p-8 w-full max-w-sm text-center border border-[#333] rounded-none shadow-[0_0_30px_rgba(249,115,22,0.1)]">
+            <h1 class="text-4xl font-black italic mb-2 tracking-tighter text-white">SANTINI</h1>
+            <p class="text-orange-500 font-bold text-xs mb-8 uppercase tracking-[0.4em]">SYSTEM</p>
             <div class="space-y-4">
-                <input type="email" id="log-email" placeholder="Usuario (Email)" class="text-center">
-                <input type="password" id="log-pass" placeholder="Password" class="text-center">
-                <button id="btn-ingresar" class="w-full bg-sky-500 text-slate-900 p-4 rounded-xl font-black uppercase">Ingresar</button>
+                <input type="email" id="log-email" placeholder="USUARIO" class="text-center text-sm tracking-widest uppercase">
+                <input type="password" id="log-pass" placeholder="CLAVE" class="text-center text-sm tracking-widest uppercase">
+                <button id="btn-ingresar" class="w-full bg-orange-600 hover:bg-orange-500 text-black p-4 rounded-none font-black text-lg uppercase transition-colors">INGRESAR</button>
             </div>
         </div>
     </div>
 
     <div id="app-screen" class="hidden min-h-screen flex flex-col">
-        <header class="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
-            <div class="italic font-black text-xl text-sky-400">SANTINI</div>
-            <button id="btn-salir" class="text-slate-500 text-xl"><i class="fas fa-power-off"></i></button>
+        <header class="p-4 bg-[#0a0a0a] border-b border-[#333] flex justify-between items-center">
+            <div class="italic font-black text-2xl text-white tracking-tighter">SANTINI<span class="text-orange-500 text-4xl leading-none">.</span></div>
+            <button id="btn-salir" class="text-red-600 text-2xl"><i class="fas fa-power-off"></i></button>
         </header>
 
-        <nav class="flex bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
-            <button onclick="showTab('tareas')" id="btn-tareas" class="tab-btn active flex-1 p-4 font-black text-[10px] uppercase">Agenda</button>
-            <button onclick="showTab('propinas')" id="btn-propinas" class="tab-btn flex-1 p-4 font-black text-[10px] uppercase">Propinas</button>
-            <button onclick="showTab('staff')" id="btn-staff" class="tab-btn flex-1 p-4 font-black text-[10px] uppercase">Personal</button>
+        <nav class="flex bg-[#0a0a0a] border-b border-[#333] sticky top-0 z-30 overflow-x-auto">
+            <button onclick="showTab('tareas')" id="btn-tareas" class="tab-btn active flex-1 p-4 font-bold text-xs uppercase min-w-[80px]">AGENDA</button>
+            <button onclick="showTab('propinas')" id="btn-propinas" class="tab-btn flex-1 p-4 font-bold text-xs uppercase min-w-[80px]">CARGA</button>
+            <button onclick="showTab('historial')" id="btn-historial" class="tab-btn flex-1 p-4 font-bold text-xs uppercase min-w-[90px]">HISTORIAL</button>
+            <button onclick="showTab('staff')" id="btn-staff" class="tab-btn flex-1 p-4 font-bold text-xs uppercase min-w-[80px]">STAFF</button>
         </nav>
 
         <main class="flex-1 p-4 pb-20 overflow-y-auto">
-            <div id="tab-tareas" class="space-y-4">
+            
+            <div id="tab-tareas" class="space-y-5">
                 <div class="flex gap-2">
-                    <input type="text" id="nueva-tarea" placeholder="Nueva tarea..." class="text-sm">
-                    <select id="prioridad-tarea" class="w-24 text-xs">
-                        <option value="baja">Baja</option>
-                        <option value="media">Media</option>
-                        <option value="alta">Alta</option>
+                    <input type="text" id="nueva-tarea" placeholder="DETALLE DE TAREA..." class="text-sm">
+                    <select id="prioridad-tarea" class="w-32 text-xs">
+                        <option value="alta">URGENTE</option>
+                        <option value="media">NORMAL</option>
+                        <option value="baja">BAJA</option>
                     </select>
-                    <button onclick="agregarTarea()" class="bg-sky-500 text-slate-900 px-5 rounded-xl font-black">+</button>
+                    <button onclick="agregarTarea()" class="bg-white text-black px-6 font-black text-xl hover:bg-orange-500 transition-colors">+</button>
                 </div>
-                <div id="lista-tareas" class="space-y-2"></div>
+                <div id="lista-tareas" class="space-y-3"></div>
             </div>
 
-            <div id="tab-propinas" class="hidden space-y-4">
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3">
-                    <div class="grid grid-cols-2 gap-2">
+            <div id="tab-propinas" class="hidden space-y-6">
+                <div class="bg-[#111] p-5 border border-[#333] space-y-4 shadow-lg">
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-[9px] font-black text-sky-400 uppercase ml-1">F. Propina</label>
-                            <input type="date" id="fecha-propina" class="text-xs mt-1">
+                            <label class="text-xs font-black text-orange-500 uppercase tracking-widest">F. Propina</label>
+                            <input type="date" id="fecha-propina" class="mt-1 text-sm">
                         </div>
                         <div>
-                            <label class="text-[9px] font-black text-sky-400 uppercase ml-1">Turno</label>
-                            <select id="turno-propina" class="text-xs mt-1 font-bold">
-                                <option value="MAÑANA">MAÑANA</option>
-                                <option value="TARDE">TARDE</option>
-                                <option value="NOCHE">NOCHE</option>
-                            </select>
+                            <label class="text-xs font-black text-white uppercase tracking-widest">F. Pago</label>
+                            <input type="date" id="fecha-pago" class="mt-1 text-sm">
                         </div>
                     </div>
-                    <input type="text" id="quien-pago" placeholder="Quién pagó / Concepto" class="text-sm">
-                    <input type="number" id="monto-total" placeholder="Monto Total $0.00" class="text-2xl font-black text-sky-400">
+                    
+                    <div>
+                        <label class="text-xs font-black text-white uppercase tracking-widest">Turno / Tipo</label>
+                        <select id="turno-propina" class="mt-1 text-sm font-bold">
+                            <option value="MAÑANA">MAÑANA</option>
+                            <option value="NOCHE">NOCHE</option>
+                            <option value="EVENTO">EVENTO</option>
+                            <option value="OTRO">OTRO</option>
+                        </select>
+                    </div>
+
+                    <input type="text" id="quien-pago" placeholder="CONCEPTO / OBSERVACIONES" class="text-sm uppercase">
+                    
+                    <div class="pt-2">
+                        <label class="text-xs font-black text-orange-500 uppercase tracking-widest">Monto a Repartir</label>
+                        <input type="number" id="monto-total" placeholder="$ 0.00" class="mt-1 text-3xl font-black text-white text-center tracking-wider py-4 border-orange-500">
+                    </div>
                 </div>
 
-                <h2 class="text-[10px] font-black uppercase text-slate-500 px-1">Personal Activo</h2>
-                <div id="grid-propinas-staff" class="grid grid-cols-2 gap-2"></div>
+                <div class="flex justify-between items-end border-b border-[#333] pb-2 px-1">
+                    <h2 class="text-xs font-bold text-white tracking-widest uppercase">Personal Presente</h2>
+                    <span class="text-[10px] text-orange-500 font-bold">Click para asisgnar HS</span>
+                </div>
 
-                <button onclick="verReporte()" class="w-full mt-6 bg-sky-500 text-slate-900 p-4 rounded-xl font-black uppercase shadow-lg">Generar Reporte Final</button>
+                <div id="grid-propinas-staff" class="grid grid-cols-2 gap-3"></div>
+
+                <button onclick="guardarReporte()" class="w-full mt-8 bg-orange-600 text-black p-5 font-black text-lg tracking-widest shadow-[0_0_15px_rgba(249,115,22,0.4)]">GUARDAR EN HISTORIAL</button>
             </div>
 
-            <div id="tab-staff" class="hidden space-y-4">
-                <div class="flex gap-2">
-                    <input type="text" id="nuevo-nombre" placeholder="Nombre completo..." class="uppercase font-bold text-sm">
-                    <button onclick="agregarStaff()" class="bg-green-600 text-white px-6 rounded-xl font-black">Añadir</button>
+            <div id="tab-historial" class="hidden space-y-4">
+                <div class="bg-[#111] p-4 border border-[#333] mb-6">
+                    <input type="text" id="filtro-historial" placeholder="BUSCAR (NOMBRE O FECHA)..." oninput="filtrarHistorial()" class="text-sm text-center uppercase">
                 </div>
-                <div id="lista-staff-admin" class="space-y-2"></div>
+                <div id="lista-historial" class="space-y-4"></div>
+            </div>
+
+            <div id="tab-staff" class="hidden space-y-5">
+                <div class="flex gap-2">
+                    <input type="text" id="nuevo-nombre" placeholder="NOMBRE DEL STAFF..." class="uppercase font-bold text-sm">
+                    <button onclick="agregarStaff()" class="bg-white text-black px-6 font-black tracking-widest uppercase hover:bg-orange-500 transition-colors">Añadir</button>
+                </div>
+                <div id="lista-staff-admin" class="space-y-3"></div>
             </div>
         </main>
     </div>
 
     <div id="pagina-reporte">
         <div class="max-w-md mx-auto py-6">
-            <div class="text-center mb-8 border-b-2 border-slate-100 pb-4">
-                <h1 class="text-5xl font-black italic text-slate-900 tracking-tighter">SANTINI</h1>
-                <p class="text-[10px] font-bold text-slate-400 tracking-[0.3em] mt-2 uppercase">Recibo de Distribución</p>
+            <div class="text-center mb-10 border-b-[3px] border-black pb-6">
+                <h1 class="text-6xl font-black italic tracking-tighter">SANTINI</h1>
+                <p class="text-xs font-bold tracking-[0.4em] mt-3 uppercase">Recibo Oficial</p>
             </div>
             
-            <div class="bg-slate-50 p-4 rounded-2xl space-y-2 mb-6 text-sm">
-                <div class="flex justify-between font-bold"><span class="text-slate-400">FECHA:</span><span id="rep-fecha"></span></div>
-                <div class="flex justify-between font-bold"><span class="text-slate-400">TURNO:</span><span id="rep-turno" class="text-sky-600"></span></div>
-                <div class="flex justify-between font-bold"><span class="text-slate-400">CONCEPTO:</span><span id="rep-concepto"></span></div>
+            <div class="border-[2px] border-black p-5 space-y-3 mb-8 text-sm font-bold bg-gray-50">
+                <div class="flex justify-between"><span class="uppercase">Fecha Propina:</span><span id="rep-fpropina" class="font-black text-lg"></span></div>
+                <div class="flex justify-between"><span class="uppercase">Fecha Pago:</span><span id="rep-fpago"></span></div>
+                <div class="flex justify-between"><span class="uppercase">Turno:</span><span id="rep-turno" class="font-black"></span></div>
+                <div class="flex justify-between"><span class="uppercase">Concepto:</span><span id="rep-concepto"></span></div>
             </div>
 
-            <div id="rep-lista" class="space-y-3"></div>
+            <div class="text-xs font-bold tracking-widest uppercase mb-2 border-b border-black pb-1">Detalle de Reparto</div>
+            <div id="rep-lista" class="space-y-3 mb-8"></div>
 
-            <div class="mt-8 pt-5 border-t-4 border-double border-slate-100 flex justify-between items-center">
-                <span class="text-xs font-black text-slate-400 uppercase">Monto Total Recaudado</span>
-                <span id="rep-total" class="text-3xl font-black text-sky-600"></span>
+            <div class="mt-8 pt-5 border-t-[3px] border-black flex justify-between items-center">
+                <span class="text-sm font-black uppercase tracking-widest">Total Repartido</span>
+                <span id="rep-total" class="text-4xl font-black"></span>
             </div>
 
-            <div class="mt-12 flex gap-3 no-print">
-                <button onclick="cerrarReporte()" class="flex-1 bg-slate-100 text-slate-500 p-4 rounded-2xl font-black text-[10px] uppercase">Atrás</button>
-                <button onclick="window.print()" class="flex-1 bg-slate-900 text-white p-4 rounded-2xl font-black text-[10px] uppercase">Guardar / PDF</button>
+            <div class="mt-16 flex gap-4 no-print">
+                <button onclick="cerrarReporte()" class="flex-1 bg-gray-200 text-black p-5 font-black text-xs uppercase tracking-widest border border-black hover:bg-gray-300">Cerrar</button>
+                <button onclick="imprimirYPreguntar()" class="flex-1 bg-black text-white p-5 font-black text-xs uppercase tracking-widest shadow-xl hover:bg-gray-900">Imprimir PDF</button>
             </div>
         </div>
     </div>
@@ -144,12 +201,14 @@
 
         let staffGlobal = [];
         let seleccionados = [];
+        let historialGlobal = [];
+        let reporteActualId = null;
 
         // AUTH
         document.getElementById('btn-ingresar').onclick = async () => {
             const email = document.getElementById('log-email').value;
             const pass = document.getElementById('log-pass').value;
-            try { await signInWithEmailAndPassword(auth, email, pass); } catch (e) { alert("Usuario o clave incorrecta"); }
+            try { await signInWithEmailAndPassword(auth, email, pass); } catch (e) { alert("DATOS INCORRECTOS"); }
         };
         document.getElementById('btn-salir').onclick = () => signOut(auth);
 
@@ -165,88 +224,194 @@
         });
 
         function initSincronizacion() {
+            // Staff
             onSnapshot(query(collection(db, "staff"), orderBy("nombre")), (snap) => {
                 staffGlobal = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderAdminStaff();
                 renderPropinasGrid();
             });
+            // Tareas
             onSnapshot(query(collection(db, "tareas"), orderBy("creado", "desc")), (snap) => {
                 const lista = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderTareas(lista);
             });
+            // Historial de Reportes (Ordenado por fecha de propina descendente)
+            onSnapshot(query(collection(db, "historial"), orderBy("fechaPropina", "desc")), (snap) => {
+                historialGlobal = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderHistorialUI(historialGlobal);
+            });
         }
 
-        // ACCIONES
+        // ACCIONES BÁSICAS
         window.agregarStaff = async () => {
             const nombre = document.getElementById('nuevo-nombre').value.toUpperCase().trim();
-            if(nombre) { 
-                await addDoc(collection(db, "staff"), { nombre }); 
-                document.getElementById('nuevo-nombre').value = ""; 
-            }
+            if(nombre) { await addDoc(collection(db, "staff"), { nombre }); document.getElementById('nuevo-nombre').value = ""; }
         };
-        window.eliminarStaff = async (id) => { if(confirm("¿Borrar empleado?")) await deleteDoc(doc(db, "staff", id)); };
+        window.eliminarStaff = async (id) => { if(confirm("¿ELIMINAR ESTE STAFF?")) await deleteDoc(doc(db, "staff", id)); };
 
         window.agregarTarea = async () => {
-            const text = document.getElementById('nueva-tarea').value;
+            const text = document.getElementById('nueva-tarea').value.toUpperCase();
             const prio = document.getElementById('prioridad-tarea').value;
-            if(text) { 
-                await addDoc(collection(db, "tareas"), { text, prio, creado: Date.now() }); 
-                document.getElementById('nueva-tarea').value = ""; 
-            }
+            if(text) { await addDoc(collection(db, "tareas"), { text, prio, creado: Date.now() }); document.getElementById('nueva-tarea').value = ""; }
         };
         window.borrarTarea = async (id) => await deleteDoc(doc(db, "tareas", id));
 
-        // LÓGICA DE SELECCIÓN Y CÁLCULO
+        // LÓGICA DE PROPINAS
         window.toggleSeleccion = (nombre) => {
             const idx = seleccionados.findIndex(x => x.nombre === nombre);
             if(idx > -1) {
                 seleccionados.splice(idx, 1);
             } else {
-                const h = prompt(`Horas trabajadas por ${nombre}:`, "8");
+                const h = prompt(`HORAS ASIGNADAS A ${nombre}:`, "8");
                 if(h && !isNaN(h)) seleccionados.push({ nombre, horas: parseFloat(h) });
             }
             renderPropinasGrid();
         };
 
-        window.verReporte = () => {
+        // GUARDAR EL REPORTE EN EL HISTORIAL
+        window.guardarReporte = async () => {
             const total = parseFloat(document.getElementById('monto-total').value) || 0;
-            if(total <= 0 || seleccionados.length === 0) return alert("Carga el monto y selecciona al menos una persona.");
+            const fPropina = document.getElementById('fecha-propina').value;
+            
+            if(!fPropina) return alert("¡ALERTA! FALTA SELECCIONAR LA FECHA DE LA PROPINA.");
+            if(total <= 0 || seleccionados.length === 0) return alert("¡ALERTA! FALTA MONTO O PERSONAL.");
+
+            const fPago = document.getElementById('fecha-pago').value || 'PENDIENTE';
+            const turno = document.getElementById('turno-propina').value;
+            const concepto = document.getElementById('quien-pago').value.toUpperCase() || 'REPARTO GENERAL';
 
             const sumaHs = seleccionados.reduce((acc, x) => acc + x.horas, 0);
             const valorH = total / sumaHs;
 
-            document.getElementById('rep-fecha').innerText = document.getElementById('fecha-propina').value || '---';
-            document.getElementById('rep-turno').innerText = document.getElementById('turno-propina').value;
-            document.getElementById('rep-concepto').innerText = document.getElementById('quien-pago').value || 'REPARTO DE TURNO';
-            document.getElementById('rep-total').innerText = `$ ${total.toLocaleString()}`;
+            // Pre-calcular lo que cobra cada uno para guardarlo fijo
+            const detalles = seleccionados.map(e => ({
+                nombre: e.nombre,
+                horas: e.horas,
+                pago: e.horas * valorH
+            }));
+
+            const reporteDoc = {
+                fechaPropina: fPropina,
+                fechaPago: fPago,
+                turno: turno,
+                concepto: concepto,
+                total: total,
+                detalles: detalles,
+                creado: Date.now()
+            };
+
+            // Guardar en Firebase Collection: historial
+            await addDoc(collection(db, "historial"), reporteDoc);
+
+            // Limpiar Pantalla
+            document.getElementById('monto-total').value = "";
+            document.getElementById('quien-pago').value = "";
+            seleccionados = [];
+            renderPropinasGrid();
+            
+            alert("REPORTE GUARDADO EXITOSAMENTE. REVISAR EN PESTAÑA 'HISTORIAL'.");
+            window.showTab('historial');
+        };
+
+        // HISTORIAL: BÚSQUEDA Y RENDER
+        window.filtrarHistorial = () => {
+            const txt = document.getElementById('filtro-historial').value.toLowerCase();
+            const filtrados = historialGlobal.filter(r => 
+                r.fechaPropina.includes(txt) || 
+                r.detalles.some(d => d.nombre.toLowerCase().includes(txt))
+            );
+            renderHistorialUI(filtrados);
+        };
+
+        function renderHistorialUI(lista) {
+            const c = document.getElementById('lista-historial');
+            c.innerHTML = "";
+            if(lista.length === 0) {
+                c.innerHTML = "<div class='text-center text-[#666] p-4 text-sm font-bold tracking-widest mt-10'>NO HAY REPORTES</div>";
+                return;
+            }
+
+            lista.forEach(r => {
+                c.innerHTML += `
+                <div class="bg-[#111] border border-[#333] p-4 flex flex-col gap-3">
+                    <div class="flex justify-between items-start border-b border-[#333] pb-2">
+                        <div>
+                            <div class="text-[10px] text-orange-500 font-black tracking-widest uppercase">F. Propina</div>
+                            <div class="text-xl font-black text-white">${r.fechaPropina}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xl font-black text-white">$ ${r.total.toLocaleString()}</div>
+                            <div class="text-[10px] text-[#666] font-bold tracking-widest uppercase">${r.turno}</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="abrirReporte('${r.id}')" class="flex-1 bg-white text-black p-3 text-xs font-black uppercase tracking-widest">Ver / Imprimir</button>
+                        <button onclick="eliminarReporte('${r.id}')" class="bg-red-600 text-white px-5 text-sm font-black"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        window.eliminarReporte = async (id) => {
+            if(confirm("¿ELIMINAR ESTE REPORTE DEFINITIVAMENTE DEL HISTORIAL?")) {
+                await deleteDoc(doc(db, "historial", id));
+            }
+        };
+
+        // MODAL DE IMPRESIÓN
+        window.abrirReporte = (id) => {
+            const rep = historialGlobal.find(r => r.id === id);
+            if(!rep) return;
+            reporteActualId = id; // Guardamos el ID por si lo quiere borrar tras imprimir
+
+            document.getElementById('rep-fpropina').innerText = rep.fechaPropina;
+            document.getElementById('rep-fpago').innerText = rep.fechaPago;
+            document.getElementById('rep-turno').innerText = rep.turno;
+            document.getElementById('rep-concepto').innerText = rep.concepto;
+            document.getElementById('rep-total').innerText = `$ ${rep.total.toLocaleString()}`;
 
             const res = document.getElementById('rep-lista');
             res.innerHTML = "";
-            [...seleccionados].sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach(e => {
-                const pago = e.horas * valorH;
+            
+            // Ordenamos alfabéticamente para la impresión
+            [...rep.detalles].sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach(e => {
                 res.innerHTML += `
-                    <div class="flex justify-between items-center bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+                    <div class="flex justify-between items-center bg-white border border-gray-300 p-4 font-bold text-sm">
                         <div>
-                            <div class="font-black text-slate-800 uppercase text-xs">${e.nombre}</div>
-                            <div class="text-[9px] text-slate-400 font-bold">${e.horas} HORAS</div>
+                            <div class="font-black text-black uppercase">${e.nombre}</div>
+                            <div class="text-[10px] text-gray-500 tracking-widest">${e.horas} HORAS</div>
                         </div>
-                        <div class="text-xl font-black text-sky-600">$ ${pago.toFixed(2)}</div>
+                        <div class="text-xl font-black text-black">$ ${e.pago.toFixed(2)}</div>
                     </div>`;
             });
 
             document.getElementById('pagina-reporte').style.display = 'block';
         };
 
-        window.cerrarReporte = () => document.getElementById('pagina-reporte').style.display = 'none';
+        window.cerrarReporte = () => {
+            document.getElementById('pagina-reporte').style.display = 'none';
+            reporteActualId = null;
+        };
 
-        // RENDERS
+        window.imprimirYPreguntar = () => {
+            window.print();
+            // Le damos 1 segundo de respiro para que vuelva a la pantalla tras el PDF
+            setTimeout(async () => {
+                if(confirm("¿IMPRESIÓN FINALIZADA?\n\n¿Deseas ELIMINAR este reporte del historial ahora mismo?")) {
+                    await deleteDoc(doc(db, "historial", reporteActualId));
+                    cerrarReporte();
+                }
+            }, 1000);
+        };
+
+        // RENDERS DE SECCIONES BASE
         function renderAdminStaff() {
             const c = document.getElementById('lista-staff-admin');
             c.innerHTML = "";
             staffGlobal.forEach(s => {
-                c.innerHTML += `<div class="bg-slate-900 p-3 rounded-xl flex justify-between border border-slate-800">
-                    <span class="font-bold uppercase text-sm">${s.nombre}</span>
-                    <button onclick="eliminarStaff('${s.id}')" class="text-rose-500 px-2"><i class="fas fa-trash-alt"></i></button>
+                c.innerHTML += `<div class="bg-[#111] p-4 flex justify-between border border-[#333] items-center">
+                    <span class="font-bold uppercase tracking-widest text-sm text-white">${s.nombre}</span>
+                    <button onclick="eliminarStaff('${s.id}')" class="text-red-500 p-2"><i class="fas fa-trash-alt text-lg"></i></button>
                 </div>`;
             });
         }
@@ -254,11 +419,12 @@
         function renderTareas(tareas) {
             const c = document.getElementById('lista-tareas');
             c.innerHTML = "";
-            const clr = { alta: 'border-l-rose-500', media: 'border-l-yellow-500', baja: 'border-l-sky-500' };
+            // Colores Nueva Paleta: Alta=Rojo, Media=Naranja, Baja=Blanco
+            const clr = { alta: 'border-l-4 border-red-600', media: 'border-l-4 border-orange-500', baja: 'border-l-4 border-white' };
             tareas.forEach(t => {
-                c.innerHTML += `<div class="bg-slate-900 p-4 rounded-xl border-l-4 ${clr[t.prio]} flex justify-between border border-slate-800 shadow-lg">
-                    <span class="text-sm font-semibold">${t.text}</span>
-                    <button onclick="borrarTarea('${t.id}')" class="text-slate-700 hover:text-green-500"><i class="fas fa-check-circle text-xl"></i></button>
+                c.innerHTML += `<div class="bg-[#111] p-5 flex justify-between items-center border border-[#333] ${clr[t.prio]}">
+                    <span class="text-sm font-bold tracking-wider text-white">${t.text}</span>
+                    <button onclick="borrarTarea('${t.id}')" class="text-[#666] hover:text-white transition-colors"><i class="fas fa-check-square text-2xl"></i></button>
                 </div>`;
             });
         }
@@ -268,9 +434,9 @@
             c.innerHTML = "";
             staffGlobal.forEach(s => {
                 const sel = seleccionados.find(x => x.nombre === s.nombre);
-                c.innerHTML += `<button onclick="toggleSeleccion('${s.nombre}')" class="p-4 rounded-2xl border text-left transition-all duration-200 ${sel ? 'bg-sky-500 text-slate-900 border-sky-400 scale-[0.98]' : 'bg-slate-900 text-slate-500 border-slate-800'}">
-                    <div class="text-[10px] font-black uppercase">${s.nombre}</div>
-                    <div class="text-xs font-bold mt-1">${sel ? sel.horas + ' HS' : '---'}</div>
+                c.innerHTML += `<button onclick="toggleSeleccion('${s.nombre}')" class="p-4 border text-left transition-all duration-200 ${sel ? 'bg-orange-600 text-black border-orange-500 scale-[0.98]' : 'bg-[#111] text-[#666] border-[#333]'}">
+                    <div class="text-xs font-black uppercase tracking-widest">${s.nombre}</div>
+                    <div class="text-[10px] font-bold mt-1 tracking-widest">${sel ? sel.horas + ' HS' : 'AUSENTE'}</div>
                 </button>`;
             });
         }
