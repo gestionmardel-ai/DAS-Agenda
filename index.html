@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SANTINI - Gestión Integral</title>
+    <title>SANTINI - Gestión Sincronizada</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -23,7 +23,7 @@
             <div class="space-y-4">
                 <input type="email" id="log-email" placeholder="Usuario (Email)" class="w-full text-center">
                 <input type="password" id="log-pass" placeholder="Password" class="w-full text-center">
-                <button id="btn-ingresar" class="w-full bg-sky-500 text-slate-900 p-4 rounded-xl font-black uppercase">Ingresar</button>
+                <button id="btn-ingresar" class="w-full bg-sky-500 text-slate-900 p-4 rounded-xl font-black uppercase">Entrar</button>
             </div>
         </div>
     </div>
@@ -104,6 +104,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB_qivYXUASWoLB3zJcCpUOn44TokzzWro",
@@ -116,9 +117,9 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        let staff = JSON.parse(localStorage.getItem('santini_staff')) || ["MARIA", "ANA", "CARLOS"];
-        let tareas = JSON.parse(localStorage.getItem('santini_tareas')) || [];
+        let staffGlobal = [];
         let seleccionados = [];
 
         // AUTH
@@ -133,39 +134,56 @@
             if (user) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                renderAll();
+                sincronizarDatos();
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('app-screen').classList.add('hidden');
             }
         });
 
-        // NAVEGACION
-        window.showTab = (tab) => {
-            document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden'));
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + tab).classList.add('active');
+        // SINCRONIZACIÓN EN TIEMPO REAL CON FIRESTORE
+        function sincronizarDatos() {
+            // Escuchar Staff
+            onSnapshot(query(collection(db, "staff"), orderBy("nombre")), (snap) => {
+                staffGlobal = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderStaff();
+                renderPropinasStaff();
+            });
+
+            // Escuchar Tareas
+            onSnapshot(query(collection(db, "tareas"), orderBy("creado", "desc")), (snap) => {
+                const tareas = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderTareas(tareas);
+            });
+        }
+
+        // ACCIONES FIRESTORE
+        window.agregarStaff = async () => {
+            const nombre = document.getElementById('nuevo-nombre').value.toUpperCase().trim();
+            if(nombre) {
+                await addDoc(collection(db, "staff"), { nombre });
+                document.getElementById('nuevo-nombre').value = "";
+            }
         };
 
-        // STAFF
-        window.agregarStaff = () => {
-            const nom = document.getElementById('nuevo-nombre').value.toUpperCase().trim();
-            if(nom) { staff.push(nom); save(); renderAll(); document.getElementById('nuevo-nombre').value = ""; }
-        };
-        window.eliminarStaff = (i) => {
-            if(confirm("¿Eliminar?")) { staff.splice(i, 1); save(); renderAll(); }
+        window.eliminarStaff = async (id) => {
+            if(confirm("¿Eliminar empleado?")) await deleteDoc(doc(db, "staff", id));
         };
 
-        // TAREAS
-        window.agregarTarea = () => {
+        window.agregarTarea = async () => {
             const text = document.getElementById('nueva-tarea').value;
             const prio = document.getElementById('prioridad-tarea').value;
-            if(text) { tareas.push({ text, prio, id: Date.now() }); save(); renderTareas(); document.getElementById('nueva-tarea').value = ""; }
+            if(text) {
+                await addDoc(collection(db, "tareas"), { text, prio, creado: Date.now() });
+                document.getElementById('nueva-tarea').value = "";
+            }
         };
-        window.borrarTarea = (id) => { tareas = tareas.filter(t => t.id !== id); save(); renderTareas(); };
 
-        // PROPINAS
+        window.borrarTarea = async (id) => {
+            await deleteDoc(doc(db, "tareas", id));
+        };
+
+        // LÓGICA DE PROPINAS (Igual a la anterior pero usa staffGlobal)
         window.toggleSeleccion = (nombre) => {
             const idx = seleccionados.findIndex(x => x.nombre === nombre);
             if(idx > -1) {
@@ -192,46 +210,32 @@
                 tabla.innerHTML = "";
                 [...seleccionados].sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach(e => {
                     const paga = e.horas * valorH;
-                    tabla.innerHTML += `
-                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                            <div><div class="font-black text-slate-800 uppercase text-sm">${e.nombre}</div><div class="text-[9px] text-slate-400 font-bold italic">${e.horas} HS</div></div>
-                            <div class="text-lg font-black text-sky-600">$ ${paga.toFixed(2)}</div>
-                        </div>`;
+                    tabla.innerHTML += `<div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <div><div class="font-black text-slate-800 uppercase text-sm">${e.nombre}</div><div class="text-[9px] text-slate-400 font-bold italic">${e.horas} HS</div></div>
+                        <div class="text-lg font-black text-sky-600">$ ${paga.toFixed(2)}</div>
+                    </div>`;
                 });
             } else { reporte.classList.add('hidden'); }
         };
 
-        window.descargarYLimpiar = () => {
-            // Lógica de descarga similar a la anterior...
-            alert("Reporte descargado. Se limpia la sesión.");
-            seleccionados = [];
-            document.getElementById('monto-total').value = "";
-            renderAll();
-        };
-
-        function renderAll() {
-            renderStaff();
-            renderTareas();
-            renderPropinasStaff();
-        }
-
+        // RENDERS
         function renderStaff() {
             const c = document.getElementById('lista-staff-admin');
             c.innerHTML = "";
-            [...staff].sort().forEach((s, i) => {
+            staffGlobal.forEach(s => {
                 c.innerHTML += `<div class="bg-slate-900 p-3 rounded-xl flex justify-between border border-slate-800">
-                    <span class="font-bold">${s}</span><button onclick="eliminarStaff(${i})" class="text-rose-500"><i class="fas fa-trash"></i></button>
+                    <span class="font-bold uppercase">${s.nombre}</span><button onclick="eliminarStaff('${s.id}')" class="text-rose-500"><i class="fas fa-trash"></i></button>
                 </div>`;
             });
         }
 
-        function renderTareas() {
+        function renderTareas(tareas) {
             const c = document.getElementById('lista-tareas');
             c.innerHTML = "";
             const clr = { alta: 'border-l-rose-500', media: 'border-l-yellow-500', baja: 'border-l-sky-500' };
             tareas.forEach(t => {
-                c.innerHTML += `<div class="bg-slate-900 p-4 rounded-xl border-l-4 ${clr[t.prio]} flex justify-between border-y border-r border-slate-800">
-                    <span class="text-sm">${t.text}</span><button onclick="borrarTarea(${t.id})" class="text-slate-600"><i class="fas fa-check-circle"></i></button>
+                c.innerHTML += `<div class="bg-slate-900 p-4 rounded-xl border-l-4 ${clr[t.prio]} flex justify-between border border-slate-800">
+                    <span class="text-sm">${t.text}</span><button onclick="borrarTarea('${t.id}')" class="text-slate-600"><i class="fas fa-check-circle"></i></button>
                 </div>`;
             });
         }
@@ -239,18 +243,29 @@
         function renderPropinasStaff() {
             const c = document.getElementById('grid-propinas-staff');
             c.innerHTML = "";
-            [...staff].sort().forEach(s => {
-                const sel = seleccionados.find(x => x.nombre === s);
-                c.innerHTML += `<button onclick="toggleSeleccion('${s}')" class="p-3 rounded-xl border text-left ${sel ? 'bg-sky-500 text-slate-900 border-sky-400 font-black' : 'bg-slate-900 text-slate-500 border-slate-800'}">
-                    <div class="text-[8px] uppercase">${s}</div><div class="text-xs">${sel ? sel.horas + ' HS' : 'AUSENTE'}</div>
+            staffGlobal.forEach(s => {
+                const sel = seleccionados.find(x => x.nombre === s.nombre);
+                c.innerHTML += `<button onclick="toggleSeleccion('${s.nombre}')" class="p-3 rounded-xl border text-left ${sel ? 'bg-sky-500 text-slate-900 border-sky-400 font-black' : 'bg-slate-900 text-slate-500 border-slate-800'}">
+                    <div class="text-[8px] uppercase">${s.nombre}</div><div class="text-xs">${sel ? sel.horas + ' HS' : 'AUSENTE'}</div>
                 </button>`;
             });
         }
 
-        function save() {
-            localStorage.setItem('santini_staff', JSON.stringify(staff));
-            localStorage.setItem('santini_tareas', JSON.stringify(tareas));
-        }
+        window.showTab = (tab) => {
+            document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden'));
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + tab).classList.add('active');
+        };
+
+        window.descargarYLimpiar = () => {
+            alert("Reporte descargado (simulado). Limpiando selección.");
+            seleccionados = [];
+            document.getElementById('monto-total').value = "";
+            renderPropinasStaff();
+            window.calcular();
+        };
+
     </script>
 </body>
 </html>
