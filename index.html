@@ -3,291 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SANTINI - Gestión Integral</title>
+    <title>SANTINI - Gestión Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Roboto+Mono:wght@500;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #070b14; color: #f1f5f9; margin: 0; overflow-x: hidden; }
-        .tab-btn.active { border-bottom: 4px solid #3b82f6; color: #3b82f6; }
-        .card-shadow { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); }
-        input, select { background: #111827; border: 1px solid #1e293b; color: white; padding: 10px; border-radius: 8px; outline: none; }
-        input:focus { border-color: #3b82f6; }
+        :root { --bg-main: #070b14; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: #f1f5f9; margin: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Ajustes para visibilidad en Celular */
+        main { flex: 1; overflow-y: auto; padding: 12px; padding-bottom: 80px; }
+        .grid-personal { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        @media (min-width: 768px) { .grid-personal { grid-template-columns: repeat(4, 1fr); } }
+
+        .card-pago { background: #ffffff; color: #0f172a; border-radius: 24px; padding: 20px; margin-top: 20px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+        .input-dark { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 12px; color: white; outline: none; width: 100%; }
+        .input-dark:focus { border-color: #3b82f6; }
+        
+        .btn-staff { background: #0f172a; border: 2px solid #1e293b; padding: 15px; border-radius: 16px; text-align: left; transition: 0.2s; }
+        .btn-staff.active { background: #16a34a; border-color: #052e16; color: white; font-weight: 900; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="fixed inset-0 z-50 bg-[#070b14] flex items-center justify-center p-6">
-        <div class="bg-[#111827] p-8 w-full max-w-sm text-center border border-slate-800 rounded-3xl card-shadow">
-            <h1 class="text-3xl font-black italic mb-2">SANTINI</h1>
-            <p class="text-sky-400 font-bold text-xs mb-8 uppercase tracking-widest">Panel de Control</p>
+    <div id="login-screen" class="h-screen flex items-center justify-center p-6 z-50 bg-[#070b14] absolute inset-0">
+        <div class="bg-[#111827] p-8 w-full max-w-sm text-center border border-slate-800 rounded-3xl shadow-2xl">
+            <h1 class="text-3xl font-black text-white italic">SANTINI</h1>
+            <p class="text-sky-400 font-bold text-sm mb-8 tracking-widest uppercase text-[10px]">Gestión de Turnos</p>
             <div class="space-y-4">
-                <input type="password" id="pass-admin" placeholder="Contraseña de Acceso" class="w-full text-center text-lg">
-                <button onclick="login()" class="w-full bg-sky-500 text-slate-900 p-4 rounded-xl font-black uppercase">Ingresar</button>
+                <input type="email" id="log-email" placeholder="Usuario (Email)" class="input-dark text-center">
+                <input type="password" id="log-pass" placeholder="Password" class="input-dark text-center">
+                <button id="btn-ingresar" class="w-full bg-sky-500 text-slate-900 p-4 rounded-xl font-black uppercase">Entrar</button>
             </div>
         </div>
     </div>
 
-    <div id="app-screen" class="hidden min-h-screen flex flex-col">
-        <header class="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center sticky top-0 z-40">
-            <div class="italic font-black text-xl">SANTINI</div>
-            <button onclick="location.reload()" class="text-slate-500"><i class="fas fa-power-off text-xl"></i></button>
+    <div id="app-screen" class="hidden h-full flex flex-col">
+        <header class="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
+            <div class="italic font-black text-xl text-white">SANTINI</div>
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <div id="user-display" class="text-[10px] font-black text-white uppercase">---</div>
+                    <span id="role-tag" class="text-[8px] px-2 py-0.5 rounded bg-sky-500 text-slate-900 font-black uppercase italic">ADMIN</span>
+                </div>
+                <button id="btn-salir" class="text-slate-500 text-xl"><i class="fas fa-power-off"></i></button>
+            </div>
         </header>
 
-        <nav class="flex bg-slate-900 border-b border-slate-800">
-            <button onclick="showTab('tareas')" id="btn-tareas" class="tab-btn active flex-1 p-4 font-black text-[10px] uppercase">Agenda</button>
-            <button onclick="showTab('propinas')" id="btn-propinas" class="tab-btn flex-1 p-4 font-black text-[10px] uppercase">Propinas</button>
-            <button onclick="showTab('staff')" id="btn-staff" class="tab-btn flex-1 p-4 font-black text-[10px] uppercase">Personal</button>
-        </nav>
-
-        <main class="flex-1 p-4 pb-20">
-            
-            <div id="tab-tareas" class="space-y-4">
-                <div class="flex gap-2">
-                    <input type="text" id="nueva-tarea" placeholder="Nueva tarea..." class="flex-1 text-sm">
-                    <select id="prioridad-tarea" class="text-sm">
-                        <option value="baja">Baja</option>
-                        <option value="media">Media</option>
-                        <option value="alta">Alta</option>
-                    </select>
-                    <button onclick="agregarTarea()" class="bg-sky-500 text-slate-900 px-4 rounded-lg font-black">+</button>
-                </div>
-                <div id="lista-tareas" class="space-y-2"></div>
-            </div>
-
-            <div id="tab-propinas" class="hidden space-y-4">
-                <div class="bg-slate-900 p-4 rounded-2xl space-y-3 border border-slate-800">
-                    <div class="grid grid-cols-2 gap-2">
+        <main>
+            <div class="space-y-4">
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="text-[10px] font-black text-sky-400 uppercase">Fecha Propina</label>
-                            <input type="date" id="fecha-propina" class="w-full text-xs">
+                            <label class="text-[9px] font-black text-sky-400 uppercase">F. Propina</label>
+                            <input type="date" id="fecha-propina" class="input-dark text-xs">
                         </div>
                         <div>
-                            <label class="text-[10px] font-black text-sky-400 uppercase">Fecha de Pago</label>
-                            <input type="date" id="fecha-pago" class="w-full text-xs">
+                            <label class="text-[9px] font-black text-sky-400 uppercase">F. Pago</label>
+                            <input type="date" id="fecha-pago" class="input-dark text-xs">
                         </div>
                     </div>
                     <div>
-                        <label class="text-[10px] font-black text-sky-400 uppercase">Quién Pagó / Concepto</label>
-                        <input type="text" id="quien-pago" placeholder="Ej: Evento Empresa X" class="w-full text-sm">
+                        <label class="text-[9px] font-black text-sky-400 uppercase">Quién pagó / Concepto</label>
+                        <input type="text" id="concepto-pago" placeholder="..." class="input-dark text-sm">
                     </div>
                     <div>
-                        <label class="text-[10px] font-black text-sky-400 uppercase">Monto Recaudado</label>
-                        <input type="number" id="monto-total" placeholder="$ 0.00" oninput="calcular()" class="w-full text-2xl font-black">
+                        <label class="text-[9px] font-black text-sky-400 uppercase">Monto Total Recaudado</label>
+                        <input type="number" id="monto-total" placeholder="$ 0.00" oninput="calcular()" class="input-dark text-2xl font-black text-sky-400">
                     </div>
                 </div>
 
-                <h2 class="text-xs font-black uppercase text-slate-500 pt-2">Seleccionar Personal en Turno</h2>
-                <div id="grid-propinas-staff" class="grid grid-cols-2 gap-2"></div>
+                <h2 class="text-[10px] font-black uppercase text-slate-500 px-1">Seleccionar Personal y Horas</h2>
+                <div id="grid-personal" class="grid-personal">
+                    </div>
 
-                <div id="reporte-visual" class="bg-white text-slate-900 rounded-3xl p-6 shadow-2xl mt-6 hidden">
-                    <div class="text-center mb-4">
-                        <h3 class="font-black italic text-xl border-b-2 border-slate-100 pb-2">REPORTE DE PAGO</h3>
-                        <p id="info-pago-txt" class="text-[10px] font-bold text-slate-400 mt-2 uppercase"></p>
+                <div id="reporte-contenedor" class="hidden">
+                    <div class="card-pago">
+                        <div class="text-center mb-4">
+                            <h3 class="font-black italic text-xl border-b border-slate-200 pb-2">RESUMEN DE REPARTO</h3>
+                            <p id="detalles-reporte" class="text-[10px] text-slate-400 font-bold mt-2 uppercase"></p>
+                        </div>
+                        <div id="tabla-reparto" class="space-y-3">
+                            </div>
+                        <div class="mt-6 pt-4 border-t border-slate-200 flex justify-between items-center font-black">
+                            <span class="text-xs uppercase text-slate-400">Total a Repartir:</span>
+                            <span id="total-final" class="text-2xl text-sky-600 font-black"></span>
+                        </div>
+                        <button onclick="descargarYLimpiar()" class="w-full mt-6 bg-slate-900 text-white p-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg">Descargar Reporte</button>
                     </div>
-                    <div id="tabla-distribucion" class="space-y-3"></div>
-                    <div class="mt-6 pt-4 border-t-2 border-slate-100 flex justify-between items-center font-black">
-                        <span class="text-xs uppercase">Total Distribuido:</span>
-                        <span id="display-total-reporte" class="text-2xl text-sky-600"></span>
-                    </div>
-                    <button onclick="descargarBorrar()" class="w-full mt-6 bg-slate-900 text-white p-4 rounded-xl font-black uppercase text-xs">Descargar y Limpiar Todo</button>
                 </div>
             </div>
-
-            <div id="tab-staff" class="hidden space-y-4">
-                <div class="flex gap-2">
-                    <input type="text" id="nuevo-nombre" placeholder="Nombre empleado..." class="flex-1 uppercase font-bold text-sm">
-                    <button onclick="agregarStaff()" class="bg-green-600 text-white px-6 rounded-lg font-black">AÑADIR</button>
-                </div>
-                <div id="lista-staff-admin" class="space-y-2"></div>
-            </div>
-
         </main>
     </div>
 
-    <script>
-        // ESTADO INICIAL
-        let staff = JSON.parse(localStorage.getItem('santini_staff')) || ["MARIA", "ANA", "CARLOS"];
-        let tareas = JSON.parse(localStorage.getItem('santini_tareas')) || [];
-        let seleccionados = [];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // LOGIN
-        function login() {
-            if(document.getElementById('pass-admin').value === "1234") { // Cambiá 1234 por tu clave
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_qivYXUASWoLB3zJcCpUOn44TokzzWro",
+            authDomain: "pasaplatos-c9588.firebaseapp.com",
+            projectId: "pasaplatos-c9588",
+            storageBucket: "pasaplatos-c9588.firebasestorage.app",
+            messagingSenderId: "885252229249",
+            appId: "1:885252229249:web:2f04b59f0ad8d6c1736580"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let seleccionados = [];
+        let staffBase = ["MARIA", "ANA", "CARLOS", "JUAN", "BELEN", "ZULMA", "DANIEL", "ROSA"]; // Esto puede venir de Firestore después
+
+        // AUTH
+        document.getElementById('btn-ingresar').onclick = async () => {
+            const email = document.getElementById('log-email').value;
+            const pass = document.getElementById('log-pass').value;
+            try { await signInWithEmailAndPassword(auth, email, pass); } catch (e) { alert("Credenciales inválidas"); }
+        };
+        document.getElementById('btn-salir').onclick = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                init();
-            } else { alert("Clave incorrecta"); }
-        }
-
-        function init() {
-            renderStaff();
-            renderTareas();
-            renderPropinasStaff();
-        }
-
-        function showTab(tab) {
-            document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden'));
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + tab).classList.add('active');
-        }
-
-        // GESTIÓN STAFF
-        function agregarStaff() {
-            const nom = document.getElementById('nuevo-nombre').value.toUpperCase().trim();
-            if(!nom) return;
-            staff.push(nom);
-            document.getElementById('nuevo-nombre').value = "";
-            save();
-            renderStaff();
-            renderPropinasStaff();
-        }
-
-        function eliminarStaff(index) {
-            if(confirm("¿Eliminar a este empleado?")) {
-                staff.splice(index, 1);
-                save();
-                renderStaff();
-                renderPropinasStaff();
+                document.getElementById('user-display').innerText = user.email.split('@')[0];
+                renderStaffGrid();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-screen').classList.add('hidden');
             }
-        }
+        });
 
-        function renderStaff() {
-            const cont = document.getElementById('lista-staff-admin');
+        // RENDER STAFF (ALFABÉTICO)
+        function renderStaffGrid() {
+            const cont = document.getElementById('grid-personal');
             cont.innerHTML = "";
-            // ORDEN ALFABÉTICO
-            staff.sort().forEach((s, i) => {
-                cont.innerHTML += `
-                    <div class="bg-slate-900 p-3 rounded-xl flex justify-between items-center border border-slate-800">
-                        <span class="font-bold uppercase">${s}</span>
-                        <button onclick="eliminarStaff(${i})" class="text-rose-500 px-2"><i class="fas fa-trash"></i></button>
-                    </div>`;
+            staffBase.sort().forEach(nombre => {
+                const sel = seleccionados.find(x => x.nombre === nombre);
+                const btn = document.createElement('button');
+                btn.className = `btn-staff ${sel ? 'active' : ''}`;
+                btn.onclick = () => togglePersonal(nombre);
+                btn.innerHTML = `
+                    <div class="text-[8px] text-slate-500 font-black uppercase">${sel ? 'Seleccionado' : 'Ausente'}</div>
+                    <div class="text-sm font-bold">${nombre}</div>
+                    <div class="text-[10px] mt-1">${sel ? sel.horas + ' HS' : '---'}</div>
+                `;
+                cont.appendChild(btn);
             });
         }
 
-        // GESTIÓN TAREAS
-        function agregarTarea() {
-            const text = document.getElementById('nueva-tarea').value;
-            const prio = document.getElementById('prioridad-tarea').value;
-            if(!text) return;
-            tareas.push({ text, prio, id: Date.now() });
-            document.getElementById('nueva-tarea').value = "";
-            save();
-            renderTareas();
-        }
-
-        function borrarTarea(id) {
-            tareas = tareas.filter(t => t.id !== id);
-            save();
-            renderTareas();
-        }
-
-        function renderTareas() {
-            const cont = document.getElementById('lista-tareas');
-            cont.innerHTML = "";
-            const colores = { alta: 'border-l-rose-500', media: 'border-l-yellow-500', baja: 'border-l-sky-500' };
-            tareas.forEach(t => {
-                cont.innerHTML += `
-                    <div class="bg-slate-900 p-4 rounded-xl border-l-4 ${colores[t.prio]} flex justify-between items-center border-y border-r border-slate-800">
-                        <span class="text-sm font-medium">${t.text}</span>
-                        <button onclick="borrarTarea(${t.id})" class="text-slate-600"><i class="fas fa-check-circle text-xl"></i></button>
-                    </div>`;
-            });
-        }
-
-        // GESTIÓN PROPINAS
-        function renderPropinasStaff() {
-            const cont = document.getElementById('grid-propinas-staff');
-            cont.innerHTML = "";
-            staff.sort().forEach(s => {
-                const sel = seleccionados.find(x => x.nombre === s);
-                cont.innerHTML += `
-                    <button onclick="toggleSeleccion('${s}')" class="p-3 rounded-xl border text-left transition-all ${sel ? 'bg-sky-500 text-slate-900 border-sky-400 font-black' : 'bg-slate-900 text-slate-500 border-slate-800'}">
-                        <div class="text-[10px] uppercase">${s}</div>
-                        <div class="text-xs">${sel ? sel.horas + ' HS' : 'OFF'}</div>
-                    </button>`;
-            });
-        }
-
-        function toggleSeleccion(nombre) {
+        window.togglePersonal = (nombre) => {
             const idx = seleccionados.findIndex(x => x.nombre === nombre);
             if(idx > -1) {
                 seleccionados.splice(idx, 1);
             } else {
-                const h = prompt(`Horas trabajadas por ${nombre}:`, "8");
-                if(h && !isNaN(h)) {
-                    seleccionados.push({ nombre, horas: parseFloat(h) });
-                }
+                const h = prompt(`Horas para ${nombre}:`, "8");
+                if(h && !isNaN(h)) seleccionados.push({ nombre, horas: parseFloat(h) });
             }
-            renderPropinasStaff();
-            calcular();
-        }
+            renderStaffGrid();
+            window.calcular();
+        };
 
-        function calcular() {
+        window.calcular = () => {
             const total = parseFloat(document.getElementById('monto-total').value) || 0;
-            const reporte = document.getElementById('reporte-visual');
-            const tabla = document.getElementById('tabla-distribucion');
-            
-            if(seleccionados.length > 0 && total > 0) {
-                reporte.classList.remove('hidden');
-                const totalHoras = seleccionados.reduce((acc, x) => acc + x.horas, 0);
-                const valorHora = total / totalHoras;
-                
-                document.getElementById('info-pago-txt').innerText = `Pagó: ${document.getElementById('quien-pago').value || '---'} | Pago: ${document.getElementById('fecha-pago').value}`;
-                document.getElementById('display-total-reporte').innerText = `$ ${total.toLocaleString()}`;
-                
+            const reporteCont = document.getElementById('reporte-contenedor');
+            const tabla = document.getElementById('tabla-reparto');
+
+            if(total > 0 && seleccionados.length > 0) {
+                reporteCont.classList.remove('hidden');
+                const totalHs = seleccionados.reduce((acc, x) => acc + x.horas, 0);
+                const valorH = total / totalHs;
+
+                document.getElementById('detalles-reporte').innerText = `Concepto: ${document.getElementById('concepto-pago').value || 'Sin concepto'}`;
+                document.getElementById('total-final').innerText = `$ ${total.toLocaleString()}`;
+
                 tabla.innerHTML = "";
-                // ORDEN ALFABÉTICO EN EL REPORTE
+                // ORDENAR SELECCIONADOS ALFABETICAMENTE PARA EL REPORTE
                 seleccionados.sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach(e => {
-                    const monto = e.horas * valorHora;
+                    const paga = e.horas * valorH;
                     tabla.innerHTML += `
                         <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                             <div>
-                                <div class="font-black text-slate-800 uppercase text-sm">${e.nombre}</div>
-                                <div class="text-[9px] text-slate-400 font-bold italic">${e.horas} HORAS</div>
+                                <div class="font-black text-slate-800 text-sm uppercase">${e.nombre}</div>
+                                <div class="text-[9px] text-slate-400 font-bold">${e.horas} HORAS TRABAJADAS</div>
                             </div>
-                            <div class="text-lg font-black text-sky-600">$ ${monto.toFixed(2)}</div>
+                            <div class="text-lg font-black text-sky-600 tracking-tight">$ ${paga.toFixed(2)}</div>
                         </div>`;
                 });
             } else {
-                reporte.classList.add('hidden');
+                reporteCont.classList.add('hidden');
             }
-        }
+        };
 
-        function descargarBorrar() {
+        window.descargarYLimpiar = () => {
             const fProp = document.getElementById('fecha-propina').value;
             const fPago = document.getElementById('fecha-pago').value;
             const monto = document.getElementById('monto-total').value;
-            const quien = document.getElementById('quien-pago').value;
+            const quien = document.getElementById('concepto-pago').value;
             
-            let t = `SANTINI - REPORTE DE PROPINAS\n`;
-            t += `PROPINA DEL: ${fProp}\nFECHA DE PAGO: ${fPago}\nPAGÓ: ${quien}\nTOTAL: $${monto}\n`;
-            t += `--------------------------------\n`;
+            let txt = `SANTINI - REPORTE DE PROPINAS\n`;
+            txt += `PROPINA DEL: ${fProp} | PAGO: ${fPago}\n`;
+            txt += `CONCEPTO: ${quien}\nTOTAL: $${monto}\n`;
+            txt += `------------------------------------------\n`;
             
-            const totalHoras = seleccionados.reduce((acc, x) => acc + x.horas, 0);
+            const totalHs = seleccionados.reduce((acc, x) => acc + x.horas, 0);
             seleccionados.forEach(e => {
-                t += `${e.nombre} | ${e.horas}hs | Recibe: $${(e.horas * (monto/totalHoras)).toFixed(2)}\n`;
+                txt += `${e.nombre} | ${e.horas}hs | Recibe: $${(e.horas * (monto/totalHs)).toFixed(2)}\n`;
             });
 
-            const blob = new Blob([t], {type: 'text/plain'});
+            const blob = new Blob([txt], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `SANTINI_PAGO_${fPago}.txt`;
+            a.download = `SANTINI_PROPINAS_${fPago}.txt`;
             a.click();
 
-            // LIMPIAR
+            // LIMPIAR TODO PARA EL PRÓXIMO TURNO
             seleccionados = [];
             document.getElementById('monto-total').value = "";
-            document.getElementById('quien-pago').value = "";
-            renderPropinasStaff();
-            calcular();
-        }
+            document.getElementById('concepto-pago').value = "";
+            renderStaffGrid();
+            window.calcular();
+        };
 
-        function save() {
-            localStorage.setItem('santini_staff', JSON.stringify(staff));
-            localStorage.setItem('santini_tareas', JSON.stringify(tareas));
-        }
     </script>
 </body>
 </html>
